@@ -88,7 +88,7 @@
           (require 'auto-complete-clang) 
      (defun my-ac-clang-config ()  
        (setq ac-clang-flags  
-                  (mapcar(lambda (item)(concat "-I" item))  
+	     (mapcar(lambda (item)(concat "-I" item))  
 		    (split-string  
 		     "  
  /usr/include/c++/4.7  
@@ -117,6 +117,13 @@
      
      (autopair-global-mode)
      
+     )
+)
+
+;;;powerline
+(eval-after-load 'powerline-autoloads
+  '(progn
+     (powerline-default-theme)
      )
 )
 

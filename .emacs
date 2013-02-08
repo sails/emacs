@@ -123,7 +123,7 @@
 ;;;powerline
 (eval-after-load 'powerline-autoloads
   '(progn
-     (powerline-default-theme)
+     (powerline-center-theme)
      )
 )
 

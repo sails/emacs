@@ -85,7 +85,7 @@
      (global-set-key "\M-/" 'auto-complete)
 
      ;;clang
-          (require 'auto-complete-clang) 
+          (require 'auto-complete-clang-async) 
      (defun my-ac-clang-config ()  
        (setq ac-clang-flags  
 	     (mapcar(lambda (item)(concat "-I" item))  

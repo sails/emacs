@@ -79,36 +79,22 @@
        (global-auto-complete-mode t))
 
      
-
      (ac-config-default)
      (setq ac-use-menu-map t)
      (global-set-key "\M-/" 'auto-complete)
 
+
      ;;clang
-          (require 'auto-complete-clang-async) 
-     (defun my-ac-clang-config ()  
-       (setq ac-clang-flags  
-	     (mapcar(lambda (item)(concat "-I" item))  
-		    (split-string  
-		     "  
- /usr/include/c++/4.7  
- /usr/include/clang/3.0/include
- /usr/include/c++/4.7/i486-linux-gnu  
- /usr/include/c++/4.7/backward  
- /usr/local/include  
- /usr/lib/gcc/i486-linux-gnu/4.7/include  
- /usr/lib/gcc/i486-linux-gnu/4.7/include-fixed  
- /usr/include/i486-linux-gnu  
- /usr/include  
-"
-		     ))))
-     
-     (defun my-ac-cc-mode-setup ()  
-       (setq ac-sources (append '(ac-source-clang ac-source-yasnippet) ac-sources)))  
+     (require 'auto-complete-clang-async) 
+     (defun my-ac-cc-mode-setup ()
+       (setq ac-clang-complete-executable "~/software/clang-autocomplete-server/clang-complete")
+       (setq ac-sources (append '(ac-source-clang-async ac-source-yasnippet) ac-sources))
+       (ac-clang-launch-completion-process)
+       )
      (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)  
-
-
-	)
+     
+     
+     )
 )
 
 ;; autopair mode

@@ -120,12 +120,20 @@
      )
 )
 
-;;;powerline
+;; power line
 (eval-after-load 'powerline-autoloads
   '(progn
-     (powerline-center-theme)
-     )
+
+    )
 )
+
+;;sr-speedbar
+(eval-after-load 'sr-speedbar-autoloads
+  '(progn
+     (require 'sr-speedbar)
+    )
+)
+
 
 
 (custom-set-variables
@@ -136,7 +144,6 @@
  '(ansi-color-names-vector ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
  '(ansi-term-color-vector [unspecified "#1F1611" "#660000" "#144212" "#EFC232" "#5798AE" "#BE73FD" "#93C1BC" "#E6E1DC"])
  '(custom-enabled-themes (quote (wombat)))
- '(custom-safe-themes (quote ("5cb805901c33a175f7505c8a8b83c43c39fb84fbae4e14cfb4d1a6c83dabbfba" "27470eddcaeb3507eca2760710cc7c43f1b53854372592a3afa008268bcf7a75" "cfde97b1d5ed1770b8e2e1b739611820c3a3e370cbda75d96e78ef2a5f359b27" "1aa022f083027dc8b1fe127427ee7b0d2cda6e334ae5869a5ab25570fc0f2090" "e85dd0d1b43cc1d725db627298c2753b0c3e90dc0b195e80f09f97a4e1e5660c" "64b7be5703b90e05f7bc1f63a9f689a7c931626462697bea9476b397da194bd9" "8281168b824a806489ca7d22e60bb15020bf6eecd64c25088c85b3fd806fc341" "944f3086f68cc5ea9dfbdc9e5846ad91667af9472b3d0e1e35a9633dcab984d5" "0ef08a15ee92e04b60d0db3a660c50315ec676190ee8ac105481d21e3650d2dc" "5e1d1564b6a2435a2054aa345e81c89539a72c4cad8536cfe02583e0b7d5e2fa" "211bb9b24001d066a646809727efb9c9a2665c270c753aa125bace5e899cb523" default)))
  '(ecb-source-path (quote (("/" "/"))))
  '(fci-rule-character-color "#452E2E")
  '(fci-rule-color "#c7c7c7")

@@ -12,6 +12,8 @@
 (global-linum-mode 1)
 ;;设置字体大小
 (set-default-font "Ubuntu Mono-11")
+;;(set-frame-width (selected-frame) 120)
+;;(set-frame-height (selected-frame) 40)
 
 ;; C language setting
 (add-hook 'c-mode-hook
@@ -55,7 +57,6 @@
   '(progn
 
      (require 'yasnippet)
-     (require 'dropdown-list)
      (setq yas/prompt-functions '(yas/dropdown-prompt))
      (setq yas/wrap-around-region 'cua)
      ;; Toggle Yas/Minor mode in all buffers.
@@ -67,6 +68,7 @@
 (eval-after-load 'auto-complete-autoloads
   '(progn
 
+
      ;;common auto-complete     
      (require 'auto-complete-config)
      (defun ac-config-default ()
@@ -76,33 +78,35 @@
        (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
        (add-hook 'css-mode-hook 'ac-css-mode-setup)
        (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-       (global-auto-complete-mode t))
+       )
 
-     
      (ac-config-default)
      (setq ac-use-menu-map t)
      (global-set-key "\M-/" 'auto-complete)
 
-
      ;;clang
      (require 'auto-complete-clang-async) 
-     (defun my-ac-cc-mode-setup ()
+     (defun ac-cc-mode-setup ()
        (setq ac-clang-complete-executable "~/software/clang-autocomplete-server/clang-complete")
-       (setq ac-sources (append '(ac-source-clang-async ac-source-yasnippet) ac-sources))
+       (setq ac-sources '(ac-source-clang-async))
        (ac-clang-launch-completion-process)
        )
-     (add-hook 'c-mode-common-hook 'my-ac-cc-mode-setup)  
-     
-     
+     (defun my-ac-config ()
+       (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
+       (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+       (global-auto-complete-mode t)
+       )
+
+     (my-ac-config)
+
+
      )
 )
 
 ;; autopair mode
 (eval-after-load 'autopair-autoloads
-  '(progn
-     
+  '(progn     
      (autopair-global-mode)
-     
      )
 )
 

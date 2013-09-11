@@ -11,7 +11,8 @@
 ;;显示行号
 (global-linum-mode 1)
 ;;设置字体大小
-(set-default-font "Ubuntu Mono-11")
+;;(set-default-font "Ubuntu Mono-11")
+(set-default-font "Inconsolata Medium 11")
 ;;(set-frame-width (selected-frame) 120)
 ;;(set-frame-height (selected-frame) 40)
 

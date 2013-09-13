@@ -2,17 +2,14 @@
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
-
 ;;**********************                        common                        ********************
-;;(add-to-list 'custom-theme-load-path "~/.emacs.d/elpa/")
-;;(load-theme 'zen-and-art t)
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;;显示行号
 (global-linum-mode 1)
 ;;设置字体大小
 ;;(set-default-font "Ubuntu Mono-11")
-(set-default-font "Inconsolata Medium 11")
+;;(set-default-font "Inconsolata Medium 11")
 ;;(set-frame-width (selected-frame) 120)
 ;;(set-frame-height (selected-frame) 40)
 
@@ -51,6 +48,12 @@
 (global-set-key [f11] 'my-fullscreen);F11 全屏
 
 
+;; cedet
+(load-file "~/.emacs.d/cedet-1.1/common/cedet.el")
+(global-ede-mode 1)
+(semantic-load-enable-code-helpers)
+
+
 ;;**********************                        common                        *********************
 
 ;; config file for yasnippet
@@ -73,7 +76,7 @@
      ;;common auto-complete     
      (require 'auto-complete-config)
      (defun ac-config-default ()
-       (setq-default ac-sources '(ac-source-yasnippet ac-source-files-in-current-dir ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+       (setq-default ac-sources '(ac-source-yasnippet ac-source-semantic ac-source-files-in-current-dir ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
        (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
        (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
        (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
@@ -125,19 +128,12 @@
     )
 )
 
-
-
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ansi-color-names-vector ["#242424" "#e5786d" "#95e454" "#cae682" "#8ac6f2" "#333366" "#ccaa8f" "#f6f3e8"])
- '(ansi-term-color-vector [unspecified "#1F1611" "#660000" "#144212" "#EFC232" "#5798AE" "#BE73FD" "#93C1BC" "#E6E1DC"])
  '(custom-enabled-themes (quote (wombat)))
- '(ecb-source-path (quote (("/" "/"))))
- '(fci-rule-character-color "#452E2E")
- '(fci-rule-color "#c7c7c7")
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 (custom-set-faces
@@ -145,4 +141,4 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- )
+ '(default ((t (:family "Inconsolata" :foundry "unknown" :slant normal :weight normal :height 113 :width normal)))))

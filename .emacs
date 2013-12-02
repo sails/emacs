@@ -62,9 +62,9 @@
 
      (require 'yasnippet)
      (setq yas/prompt-functions '(yas/dropdown-prompt))
-     (setq yas/wrap-around-region 'cua)
-     ;; Toggle Yas/Minor mode in all buffers.
-     (yas/global-mode 1)
+     (setq yas-snippet-dirs '("~/.emacs.d/snippets"
+			     ))
+     (yas-global-mode 1)
 
    )
 )

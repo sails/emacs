@@ -14,21 +14,16 @@
 ;;(set-frame-height (selected-frame) 40)
 
 ;; C language setting
-(add-hook 'c-mode-hook
-          '(lambda ()
-             (c-set-style "K&R")
-             (setq tab-width 8)
-             (setq indent-tabs-mode t)
-             (setq c-basic-offset 8)))
+(defun my-c-style-set()
+  (c-set-style "K&R")
+  (c-set-offset 'innamespace 0)
+  (setq tab-width 8)
+  (setq indent-tabs-mode t)
+  (setq c-basic-offset 8)
+  )
 
-;; C++ language setting
-(add-hook 'c++-mode-hook
-          '(lambda ()
-             (c-set-style "K&R")
-             ;;(c-toggle-auto-state)
-             (setq tab-width 8)
-             (setq indent-tabs-mode t)
-             (setq c-basic-offset 8)))
+(add-hook 'c-mode-hook 'my-c-style-set)
+(add-hook 'c++-mode-hook 'my-c-style-set)
 
 ;;因为不想将修改emacs的ctrl-space，所以修改ibus的为shift-space切换
 ;;(require 'ibus)

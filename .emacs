@@ -14,6 +14,8 @@
 ;;(set-frame-height (selected-frame) 40)
 
 ;; C language setting
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
 (defun my-c-style-set()
   (c-set-style "K&R")
   (c-set-offset 'innamespace 0)
@@ -21,6 +23,7 @@
   (setq indent-tabs-mode t)
   (setq c-basic-offset 8)
   )
+
 
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-hook 'c-mode-hook 'my-c-style-set)

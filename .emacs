@@ -22,6 +22,7 @@
   (setq c-basic-offset 8)
   )
 
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 (add-hook 'c-mode-hook 'my-c-style-set)
 (add-hook 'c++-mode-hook 'my-c-style-set)
 

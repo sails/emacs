@@ -138,6 +138,11 @@
     )
 )
 
+(defun load-customize-theme()
+  (load-theme 'ample)
+)
+(add-hook 'after-init-hook 'load-customize-theme)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

@@ -2,26 +2,24 @@
 (add-to-list 'package-archives
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 
-;;**********************                        common                        ********************
+;;********************** common ********************
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;;显示行号
 (global-linum-mode 1)
 ;;设置字体大小
-;;(set-default-font "Ubuntu Mono-11")
+(set-default-font "Ubuntu Mono-11")
 ;;(set-default-font "Inconsolata Medium 11")
 ;;(set-frame-width (selected-frame) 120)
 ;;(set-frame-height (selected-frame) 40)
 
 ;; C language setting
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-
 (defun my-c-style-set()
   (c-set-style "K&R")
   (c-set-offset 'innamespace 0)
-  (setq tab-width 8)
-  (setq indent-tabs-mode t)
-  (setq c-basic-offset 8)
+;;  (setq tab-width 4)
+;;  (setq indent-tabs-mode t)
+  (setq c-basic-offset 4)
   )
 
 
@@ -46,14 +44,7 @@
                        '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
 (global-set-key [f11] 'my-fullscreen);F11 全屏
 
-
-;; cedet
-(load-file "~/.emacs.d/cedet-1.1/common/cedet.el")
-(global-ede-mode 1)
-(semantic-load-enable-code-helpers)
-
-
-;;**********************                        common                        *********************
+;;********************** common *********************
 
 ;; config file for yasnippet
 (eval-after-load 'yasnippet-autoloads
@@ -62,7 +53,7 @@
      (require 'yasnippet)
      (setq yas/prompt-functions '(yas/dropdown-prompt))
      (setq yas-snippet-dirs '("~/.emacs.d/snippets"
-			     ))
+                         ))
      (yas-global-mode 1)
 
    )
@@ -72,7 +63,7 @@
   '(progn
 
 
-     ;;common auto-complete     
+     ;;common auto-complete
      (require 'auto-complete-config)
      (defun ac-config-default ()
        (setq-default ac-sources '(ac-source-yasnippet ac-source-semantic ac-source-files-in-current-dir ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
@@ -88,7 +79,7 @@
      (global-set-key "\M-/" 'auto-complete)
 
      ;;clang
-     (require 'auto-complete-clang-async) 
+     (require 'auto-complete-clang-async)
      (defun ac-cc-mode-setup ()
        (setq ac-clang-complete-executable "~/software/clang-autocomplete-server/clang-complete")
        (setq ac-sources '(ac-source-clang-async))
@@ -108,7 +99,7 @@
 
 ;; autopair mode
 (eval-after-load 'autopair-autoloads
-  '(progn     
+  '(progn
      (autopair-global-mode)
      )
 )
@@ -139,7 +130,7 @@
 )
 
 (defun load-customize-theme()
-  (load-theme 'ample)
+;;  (load-theme 'ample)
 )
 (add-hook 'after-init-hook 'load-customize-theme)
 
@@ -149,12 +140,6 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-enabled-themes (quote (wombat)))
  '(scroll-bar-mode nil)
+ '(menu-bar-mode nil)
  '(tool-bar-mode nil))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(default ((t (:family "Inconsolata" :foundry "unknown" :slant normal :weight normal :height 113 :width normal)))))

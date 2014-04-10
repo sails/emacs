@@ -52,8 +52,6 @@
 
      (require 'yasnippet)
      (setq yas/prompt-functions '(yas/dropdown-prompt))
-     (setq yas-snippet-dirs '("~/.emacs.d/snippets"
-                         ))
      (yas-global-mode 1)
 
    )

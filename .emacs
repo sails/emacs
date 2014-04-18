@@ -120,7 +120,6 @@
 (eval-after-load 'ecb-autoloads
   '(progn
      (setq ecb-tip-of-the-day nil)
-     (setq ecb-layout-name "left3")
      ;;设置可用鼠标点击
      (custom-set-variables
       '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1)))

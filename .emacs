@@ -27,6 +27,12 @@
 (add-hook 'c-mode-hook 'my-c-style-set)
 (add-hook 'c++-mode-hook 'my-c-style-set)
 
+(add-hook 'c-mode-hook 'hs-minor-mode)
+(add-hook 'c++-mode-hook 'hs-minor-mode)
+(global-set-key (kbd "C-=") 'hs-show-block)
+(global-set-key (kbd "C--") 'hs-hide-block)
+
+
 ;;因为不想将修改emacs的ctrl-space，所以修改ibus的为shift-space切换
 ;;(require 'ibus)
 ;;(add-hook 'after-init-hook 'ibus-mode-on)

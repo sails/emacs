@@ -22,7 +22,7 @@
   (setq c-basic-offset 4)
   
   (cscope-minor-mode 1)
-  
+  (semantic-mode 1)
   )
 
 

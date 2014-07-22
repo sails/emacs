@@ -9,6 +9,7 @@
 (global-linum-mode 1)
 ;;设置字体大小
 (set-default-font "Ubuntu Mono-11")
+(set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
 ;;(set-default-font "Inconsolata Medium 11")
 ;;(set-frame-width (selected-frame) 120)
 ;;(set-frame-height (selected-frame) 40)
@@ -134,6 +135,14 @@
       '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1)))
     )
 )
+
+;;org-mode
+;;org 自动换行
+(add-hook 'org-mode-hook 
+(lambda () (setq truncate-lines nil)))
+;;org 代码高亮
+(setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
 
 (defun load-customize-theme()
 ;;  (load-theme 'ample)

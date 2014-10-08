@@ -29,7 +29,8 @@
 (add-hook 'c-mode-common-hook 'my-c-style-set)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
-(add-hook 'c-mode-common-hook 'flycheck-mode)
+;; flycheck 会让emacs变慢,默认不开
+;; (add-hook 'c-mode-common-hook 'flycheck-mode)
 
 
 (add-hook 'c-mode-hook 'hs-minor-mode)

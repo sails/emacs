@@ -5,31 +5,32 @@
 ;;********************** common ********************
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
+;;tab用空格代替
+(setq-default indent-tabs-mode nil)
 ;;显示行号
 (global-linum-mode 1)
 ;;设置字体大小
 (set-default-font "Ubuntu Mono-11")
 (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
-;;(set-default-font "Inconsolata Medium 11")
-;;(set-frame-width (selected-frame) 120)
-;;(set-frame-height (selected-frame) 40)
 
-;; C language setting
+
 (defun my-c-style-set()
-  (c-set-style "K&R")
-  (c-set-offset 'innamespace 0)
-;;  (setq tab-width 4)
-;;  (setq indent-tabs-mode t)
+;;  (c-set-style "K&R")
+;;  (c-set-offset 'innamespace 0)
   (setq c-basic-offset 4)
-  
+
   (cscope-minor-mode 1)
   (semantic-mode 1)
+
   )
 
-
+;; google c++ style 检查
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-hook 'c-mode-hook 'my-c-style-set)
-(add-hook 'c++-mode-hook 'my-c-style-set)
+(add-hook 'c-mode-common-hook 'my-c-style-set)
+(add-hook 'c-mode-common-hook 'google-set-c-style)
+(add-hook 'c-mode-common-hook 'google-make-newline-indent)
+(add-hook 'c-mode-common-hook 'flycheck-mode)
+
 
 (add-hook 'c-mode-hook 'hs-minor-mode)
 (add-hook 'c++-mode-hook 'hs-minor-mode)
@@ -37,10 +38,7 @@
 (global-set-key (kbd "C--") 'hs-hide-block)
 
 
-;;因为不想将修改emacs的ctrl-space，所以修改ibus的为shift-space切换
-;;(require 'ibus)
-;;(add-hook 'after-init-hook 'ibus-mode-on)
-
+;; 窗口间方便跳转
 (global-set-key [M-left] 'windmove-left)
 (global-set-key [M-right] 'windmove-right)
 (global-set-key [M-up] 'windmove-up)
@@ -101,7 +99,6 @@
 
      (my-ac-config)
 
-
      )
 )
 
@@ -119,37 +116,45 @@
     )
 )
 
-;;sr-speedbar
+;; sr-speedbar
 (eval-after-load 'sr-speedbar-autoloads
   '(progn
      (require 'sr-speedbar)
     )
 )
 
-;;ecb-mode
+;; ecb-mode
 (eval-after-load 'ecb-autoloads
   '(progn
      (setq ecb-tip-of-the-day nil)
      ;;设置可用鼠标点击
      (custom-set-variables
       '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1)))
-    )
-)
+     )
+  )
 
-;;org-mode
-;;org 自动换行
+;; flycheck, 其中cppcheck默认就会调用cpplint
+(eval-after-load 'flycheck
+  '(progn
+     (require 'flycheck-google-cpplint)
+     ;; Add Google C++ Style checker.
+     ;; In default, syntax checked by Clang and Cppcheck.
+     (flycheck-add-next-checker 'c/c++-cppcheck
+				'(warning . c/c++-googlelint))))
+
+
+;; org-mode
+;; org 自动换行
 (add-hook 'org-mode-hook 
 (lambda () (setq truncate-lines nil)))
+
+
 ;;org 代码高亮
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
 
-(defun load-customize-theme()
-;;  (load-theme 'ample)
-)
-(add-hook 'after-init-hook 'load-customize-theme)
 
-;; 修改默认的代码注释行为
+;; comment
 (defun qiang-comment-dwim-line (&optional arg)
   "Replacement for the comment-dwim command.
 If no region is selected and current line is not blank and we are not at the end of the line,
@@ -163,11 +168,21 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
 
+
+;; 第三方主题
+(defun load-customize-theme()
+  ;;(load-theme 'cherry-blossom)
+)
+
+
+(add-hook 'after-init-hook 'load-customize-theme)
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
  '(scroll-bar-mode nil)
  '(menu-bar-mode nil)
  '(tool-bar-mode nil))

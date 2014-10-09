@@ -1,0 +1,16 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: copyright
+# key: copyright
+# binding: direct-keybinding
+# --
+// Copyright (C) `(format-time-string "%Y")` sails Authors
+// All rights reserved.
+//
+// Filename: `(file-name-nondirectory buffer-file-name)`
+// Description:$2
+//
+// Author: sailsxu <sailsxu@gmail.com>
+// Created: `(format-time-string "%Y-%m-%d %H:%M:%S")`
+
+
+$0

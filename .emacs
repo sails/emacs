@@ -5,8 +5,6 @@
 ;;********************** common ********************
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
-;;tab用空格代替
-(setq-default indent-tabs-mode nil)
 ;;显示行号
 (global-linum-mode 1)
 ;;设置字体大小
@@ -18,7 +16,9 @@
 ;;  (c-set-style "K&R")
 ;;  (c-set-offset 'innamespace 0)
   (setq c-basic-offset 4)
-
+  ;;tab用空格代替
+  (setq-default indent-tabs-mode nil)
+  ;; cscope 查找代码很方便,先通过cscope-indexer -r来生成索引
   (cscope-minor-mode 1)
   (semantic-mode 1)
 

@@ -21,7 +21,13 @@
   ;; cscope 查找代码很方便,先通过cscope-indexer -r来生成索引
   (cscope-minor-mode 1)
   (semantic-mode 1)
-
+  ;; flycheck
+  (setq flycheck-clang-language-standard "c++11")
+  (setq flycheck-clang-include-path
+                           (list (expand-file-name "~/workspace/sails/src/"
+                                                   "~/workspace/sails/deps"
+                                                   "~/workspace/sails/deps/json-cpp/include"
+                                                   )))
   )
 
 ;; google c++ style 检查

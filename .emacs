@@ -8,14 +8,14 @@
 ;;显示行号
 (global-linum-mode 1)
 ;;设置字体大小
-(set-default-font "Ubuntu Mono-11")
+(set-frame-font "Ubuntu Mono-11")
 (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
 
 
 (defun my-c-style-set()
 ;;  (c-set-style "K&R")
 ;;  (c-set-offset 'innamespace 0)
-  (setq c-basic-offset 4)
+;;  (setq c-basic-offset 4)
   ;;tab用空格代替
   (setq-default indent-tabs-mode nil)
   ;; cscope 查找代码很方便,先通过cscope-indexer -r来生成索引
@@ -24,10 +24,10 @@
   ;; flycheck
   (setq flycheck-clang-language-standard "c++11")
   (setq flycheck-clang-include-path
-                           (list (expand-file-name "~/workspace/sails/src/"
-                                                   "~/workspace/sails/deps"
-                                                   "~/workspace/sails/deps/json-cpp/include"
+                           (list (expand-file-name "~/workspace/"
                                                    )))
+  
+
   )
 
 ;; google c++ style 检查
@@ -97,6 +97,7 @@
        (setq ac-clang-complete-executable "~/software/clang-autocomplete-server/clang-complete")
        (setq ac-sources '(ac-source-clang-async))
        (ac-clang-launch-completion-process)
+       (add-to-list 'ac-clang-cflags "-I/home/sails/workspace")
        )
      (defun my-ac-config ()
        (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
@@ -183,6 +184,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 
 (add-hook 'after-init-hook 'load-customize-theme)
+
 
 (custom-set-variables
  ;; custom-set-variables was added by Custom.

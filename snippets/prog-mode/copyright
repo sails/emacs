@@ -3,8 +3,11 @@
 # key: copyright
 # binding: direct-keybinding
 # --
-// Copyright (C) `(format-time-string "%Y")` sails Authors
+// Copyright (C) `(format-time-string "%Y")` sails Authors.
 // All rights reserved.
+//
+// Official git repository and contact information can be found at
+// https://github.com/sails/sails and http://www.sailsxu.org/.
 //
 // Filename: `(file-name-nondirectory buffer-file-name)`
 // Description:$2

@@ -7,6 +7,7 @@
 (fset 'yes-or-no-p 'y-or-n-p)
 ;;显示行号
 (global-linum-mode 1)
+(column-number-mode t)
 ;;设置字体大小
 (set-frame-font "Ubuntu Mono-11")
 (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
@@ -177,6 +178,18 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 
 
+;; wordpress
+(setq org2blog/wp-blog-alist
+      '(("sailsxu"
+         :url "http://www.sailsxu.com/xmlrpc.php"
+         :username "sailsxu"
+         :default-categories ("c++")
+         :keep-new-lines t
+         :confirm t
+         :wp-code nil
+         :tags-as-categories nil)
+        ))
+
 ;; 第三方主题
 (defun load-customize-theme()
   ;;(load-theme 'cherry-blossom)
@@ -191,7 +204,12 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
  '(scroll-bar-mode nil)
  '(menu-bar-mode nil)
  '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

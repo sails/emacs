@@ -28,7 +28,7 @@
                            (list (expand-file-name "~/workspace/"
                                                    )))
   
-
+  (projectile-mode 1)
   )
 
 ;; google c++ style 检查

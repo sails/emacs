@@ -11,6 +11,7 @@
     yasnippet
     auto-complete
     auto-complete-clang-async
+    auto-complete-clang
     flycheck
     flycheck-google-cpplint
     google-c-style

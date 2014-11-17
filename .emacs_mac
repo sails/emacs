@@ -1,0 +1,238 @@
+(require 'package)
+(add-to-list 'package-archives
+             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+(package-initialize)
+
+;; common lisp extensions一些额外的函数和宏
+(require 'cl)
+;; 启动自动检查安装配置
+(defvar required-packages
+  '(
+    yasnippet
+    auto-complete
+    auto-complete-clang-async
+    flycheck
+    flycheck-google-cpplint
+    google-c-style
+    xcscope
+    autopair
+    projectile
+    magit
+    ecb
+    org2blog
+  ) "a list of packages to ensure are installed at launch.")
+
+; method to check if all packages are installed
+(defun packages-installed-p ()
+  (loop for p in required-packages
+        when (not (package-installed-p p)) do (return nil)
+        finally (return t)))
+
+; if not all packages are installed, check one by one and install the missing ones.
+(unless (packages-installed-p)
+  ; check for new packages (package versions)
+  (message "%s" "Emacs is now refreshing its package database...")
+  (package-refresh-contents)
+  (message "%s" " done.")
+  ; install the missing packages
+  (dolist (p required-packages)
+    (when (not (package-installed-p p))
+      (package-install p))))
+
+;;********************** common ********************
+
+;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
+(when (eq system-type 'darwin) ;; mac specific settings
+  (setq mac-option-modifier 'alt)
+  (setq mac-command-modifier 'meta)
+  (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
+  )
+;;以 y/n 替代 yes/no
+(fset 'yes-or-no-p 'y-or-n-p)
+;;显示行号
+(global-linum-mode 1)
+(column-number-mode t)
+
+
+(defun my-c-style-set()
+;;  (c-set-style "K&R")
+;;  (c-set-offset 'innamespace 0)
+;;  (setq c-basic-offset 4)
+  ;;tab用空格代替
+  (setq-default indent-tabs-mode nil)
+  ;; cscope 查找代码很方便,先通过cscope-indexer -r来生成索引
+  (cscope-minor-mode 1)
+  (semantic-mode 1)
+  ;; flycheck
+  (setq flycheck-clang-language-standard "c++11")
+  (setq flycheck-clang-include-path
+                           (list (expand-file-name "~/workspace/"
+                                                   )))
+  
+  (projectile-mode 1)
+  )
+
+;; google c++ style 检查
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+(add-hook 'c-mode-common-hook 'my-c-style-set)
+(add-hook 'c-mode-common-hook 'google-set-c-style)
+(add-hook 'c-mode-common-hook 'google-make-newline-indent)
+;; flycheck 会让emacs变慢,默认不开
+;; (add-hook 'c-mode-common-hook 'flycheck-mode)
+
+
+(add-hook 'c-mode-hook 'hs-minor-mode)
+(add-hook 'c++-mode-hook 'hs-minor-mode)
+(global-set-key (kbd "C-=") 'hs-show-block)
+(global-set-key (kbd "C--") 'hs-hide-block)
+
+
+;; 窗口间方便跳转
+(global-set-key [M-left] 'windmove-left)
+(global-set-key [M-right] 'windmove-right)
+(global-set-key [M-up] 'windmove-up)
+(global-set-key [M-down] 'windmove-down)
+
+
+;;********************** common *********************
+;; config file for yasnippet
+(require 'yasnippet)
+(setq yas/prompt-functions '(yas/dropdown-prompt))
+(yas-global-mode 1)
+
+;;common auto-complete 配置
+(require 'auto-complete-config)
+(defun ac-config-default ()
+  (setq-default ac-sources '(ac-source-yasnippet ac-source-semantic ac-source-files-in-current-dir ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
+  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
+  (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
+  (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
+  (add-hook 'css-mode-hook 'ac-css-mode-setup)
+  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+  )
+
+(ac-config-default)
+(setq ac-use-menu-map t)
+(global-set-key "\M-/" 'auto-complete)
+
+;;clang for auto-complete async 配置(在mac上，不知道为什么，只能补全c语言相关的函数)
+;;(require 'auto-complete-clang-async)
+;;clang for auto-complete
+(require 'auto-complete-clang)
+
+;;自定义cc-mode的hook
+(defun ac-cc-mode-setup ()
+  ;;  clang auto-complete async相关配置
+  ;;  (setq ac-clang-complete-executable "/Users/sailsxu/Downloads/emacs-clang-complete-async-master/clang-complete")
+  ;;  (setq ac-sources '(ac-source-clang-async))
+  ;;  (ac-clang-launch-completion-process)
+  ;;  (add-to-list 'ac-clang-cflags "-I/home/sailsxu/workspace")
+
+  ;;  clang auto-complete
+  (setq ac-clang-flags
+        (mapcar (lambda (item)(concat "-I" item))
+                (split-string
+		 "
+~/workspace/sails
+/usr/include/c++/4.2.1
+ /usr/local/include
+ /usr/include
+"
+                 )
+		)
+	)
+  
+  (setq ac-sources (append '(ac-source-clang) ac-sources))
+        
+)
+
+;;auto-complete hook
+(defun my-ac-config ()
+  (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
+  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
+  (global-auto-complete-mode t)
+  )
+
+(my-ac-config)
+
+
+;; autopair mode
+(autopair-global-mode)
+
+;; ecb-mode
+(setq ecb-tip-of-the-day nil)
+;;设置可用鼠标点击
+(custom-set-variables
+ '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1)))
+
+;; flycheck, 其中cppcheck默认就会调用cpplint
+(eval-after-load 'flycheck
+  '(progn
+     (require 'flycheck-google-cpplint)
+     ;; Add Google C++ Style checker.
+     ;; In default, syntax checked by Clang and Cppcheck.
+     (flycheck-add-next-checker 'c/c++-cppcheck
+				'(warning . c/c++-googlelint))))
+
+
+;; org-mode
+;; org 自动换行
+(add-hook 'org-mode-hook 
+(lambda () (setq truncate-lines nil)))
+
+
+;;org 代码高亮
+(setq org-src-fontify-natively t)
+(setq org-src-tab-acts-natively t)
+
+
+;; comment
+(defun qiang-comment-dwim-line (&optional arg)
+  "Replacement for the comment-dwim command.
+If no region is selected and current line is not blank and we are not at the end of the line,
+then comment current line.
+Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."
+  (interactive "*P")
+  (comment-normalize-vars)
+  (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
+      (comment-or-uncomment-region (line-beginning-position) (line-end-position))
+    (comment-dwim arg)))
+(global-set-key "\M-;" 'qiang-comment-dwim-line)
+
+
+
+;; wordpress
+(setq org2blog/wp-blog-alist
+      '(("sailsxu"
+         :url "http://www.sailsxu.com/xmlrpc.php"
+         :username "sailsxu"
+         :default-categories ("c++")
+         :keep-new-lines t
+         :confirm t
+         :wp-code nil
+         :tags-as-categories nil)
+        ))
+
+;; 第三方主题
+(defun load-customize-theme()
+  ;;(load-theme 'cherry-blossom)
+)
+
+
+(add-hook 'after-init-hook 'load-customize-theme)
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(scroll-bar-mode nil)
+ '(menu-bar-mode nil)
+ '(tool-bar-mode nil))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

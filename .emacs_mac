@@ -3,6 +3,8 @@
              '("melpa" . "http://melpa.milkbox.net/packages/") t)
 (package-initialize)
 
+(setq exec-path (append exec-path '("/usr/bin" "/usr/local/bin")))
+
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
 ;; 启动自动检查安装配置
@@ -20,6 +22,7 @@
     projectile
     magit
     ecb
+    htmlize
     org2blog
   ) "a list of packages to ensure are installed at launch.")
 
@@ -129,15 +132,19 @@
   ;;  (ac-clang-launch-completion-process)
   ;;  (add-to-list 'ac-clang-cflags "-I/home/sailsxu/workspace")
 
-  ;;  clang auto-complete
+  ;;  clang auto-complete(注意它是通过调用clang来进行补全的，所以include目录是clang的include而不要是gcc的)
+  ;; path can get by echo "" | clang -v -x c++ -E -
   (setq ac-clang-flags
         (mapcar (lambda (item)(concat "-I" item))
                 (split-string
 		 "
-~/workspace/sails
-/usr/include/c++/4.2.1
+                 ~/workspace/sails
+                /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1
  /usr/local/include
- /usr/include
+               /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/6.0/include
+              /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
+              /usr/include
+              /System/Library/Frameworks
 "
                  )
 		)

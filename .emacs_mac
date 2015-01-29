@@ -24,6 +24,7 @@
     ecb
     htmlize
     org2blog
+    slime
   ) "a list of packages to ensure are installed at launch.")
 
 ; method to check if all packages are installed
@@ -44,6 +45,9 @@
       (package-install p))))
 
 ;;********************** common ********************
+;; remote file
+(setq tramp-default-method "ssh")
+(setq tramp-default-user "sails")
 
 ;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
 (when (eq system-type 'darwin) ;; mac specific settings
@@ -82,7 +86,7 @@
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 ;; flycheck 会让emacs变慢,默认不开
-;; (add-hook 'c-mode-common-hook 'flycheck-mode)
+;;(add-hook 'c-mode-common-hook 'flycheck-mode)
 
 
 (add-hook 'c-mode-hook 'hs-minor-mode)
@@ -171,16 +175,24 @@
 (setq ecb-tip-of-the-day nil)
 ;;设置可用鼠标点击
 (custom-set-variables
- '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1)))
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ecb-layout-window-sizes nil)
+ '(ecb-options-version "2.40")
+ '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
+ '(ede-project-directories (quote ("/Users/sailsxu/Desktop/tt")))
+ '(menu-bar-mode nil)
+ '(scroll-bar-mode nil)
+ '(tool-bar-mode nil))
 
 ;; flycheck, 其中cppcheck默认就会调用cpplint
-(eval-after-load 'flycheck
-  '(progn
-     (require 'flycheck-google-cpplint)
-     ;; Add Google C++ Style checker.
-     ;; In default, syntax checked by Clang and Cppcheck.
-     (flycheck-add-next-checker 'c/c++-cppcheck
-				'(warning . c/c++-googlelint))))
+;;(require 'flycheck-google-cpplint)
+;; Add Google C++ Style checker.
+;; In default, syntax checked by Clang and Cppcheck.
+;;(flycheck-add-next-checker 'c/c++-cppcheck
+;;                                '(warnings-only . c/c++-googlelint))
 
 
 ;; org-mode
@@ -208,6 +220,8 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
 
+;; slime
+(setq inferior-lisp-program "/usr/local/bin/sbcl")
 
 ;; wordpress
 (setq org2blog/wp-blog-alist
@@ -227,17 +241,83 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 )
 
 
+;; 目录别名
+(defvar drkm-fav:favourite-directories-alist
+  '(("server"  . "/ssh:sails@182.92.131.224:~/")
+    )
+  "See `drkm-fav:handler'.")
+
+(defvar drkm-fav::fav-dirs-re
+  ;; TODO: Is tehre really no other way (than mapcar) to get the list
+  ;; of the keys of an alist?!?
+  (concat
+   "^@"
+   (regexp-opt
+    (mapcar 'car drkm-fav:favourite-directories-alist)
+    t))
+  "Internal variable that stores a regex computed from
+`drkm-fav:favourite-directories-alist'.  WARNING: This is not
+updated automatically if the later variable is changed.")
+
+(defun drkm-fav:handler (primitive &rest args)
+  "Magic handler for favourite directories.
+
+With this handler installed into `file-name-handler-alist', it is
+possible to use shortcuts for often used directories.  It uses
+the mapping in the alist `drkm-fav:favourite-directories-alist'.
+
+Once installed, say you have the following alist in the mapping
+variable:
+
+    ((\"dir-1\" . \"~/some/real/dir\")
+     (\"dir-2\" . \"c:/other/dir/for/windows/users\"))
+
+You can now use \"@dir-1\" while opening a file with C-x C-f for
+instance, with completion for the abbreviation names themselves
+as well as for files under the target directory."
+  (cond
+   ;; expand-file-name
+   ((and (eq primitive 'expand-file-name)
+         (string-match drkm-fav::fav-dirs-re (car args)))
+    (replace-match
+     (cdr (assoc (match-string 1 (car args))
+                 drkm-fav:favourite-directories-alist))
+     t t (car args)))
+   ;; file-name-completion
+   ((and (eq primitive 'file-name-completion)
+         (string-match "^@\\([^/]*\\)$" (car args)))
+    (let ((compl (try-completion
+                  (match-string 1 (car args))
+                  drkm-fav:favourite-directories-alist)))
+      (cond ((eq t compl)
+             (concat "@" (match-string 1 (car args)) "/"))
+            ((not compl)
+             nil)
+            (t
+             (concat "@" compl)))))
+   ;; file-name-all-completions
+   ((and (eq primitive 'file-name-all-completions)
+         (string-match "^@\\([^/]*\\)$" (car args)))
+    (all-completions
+     (match-string 1 (car args))
+     drkm-fav:favourite-directories-alist))
+   ;; Handle any primitive we don't know about (from the info node
+   ;; (info "(elisp)Magic File Names")).
+   (t (let ((inhibit-file-name-handlers
+             (cons 'drkm-fav:handler
+                   (and (eq inhibit-file-name-operation primitive)
+                        inhibit-file-name-handlers)))
+            (inhibit-file-name-operation primitive))
+        (apply primitive args)))))
+
+;; Actually plug the feature into Emacs.
+(push '("\\`@" . drkm-fav:handler) file-name-handler-alist)
+
+
 (add-hook 'after-init-hook 'load-customize-theme)
 
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(scroll-bar-mode nil)
- '(menu-bar-mode nil)
- '(tool-bar-mode nil))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

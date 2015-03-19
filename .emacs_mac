@@ -73,11 +73,13 @@
   (semantic-mode 1)
   ;; flycheck
   (setq flycheck-clang-language-standard "c++11")
+  ;; set include-path(flycheck-gcc-include-path or flycheck-clang-include-path)
   (setq flycheck-clang-include-path
-                           (list (expand-file-name "~/workspace/"
-                                                   )))
+                           (list (expand-file-name "~/workspace/")
+                                 (expand-file-name "~/workspace/flygame/src/")
+                                 ))
   
-  (projectile-mode 1)
+;;  (Projectile-mode 1)
   )
 
 ;; google c++ style 检查
@@ -86,7 +88,7 @@
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 ;; flycheck 会让emacs变慢,默认不开
-;;(add-hook 'c-mode-common-hook 'flycheck-mode)
+(add-hook 'c-mode-common-hook 'flycheck-mode)
 
 
 (add-hook 'c-mode-hook 'hs-minor-mode)
@@ -188,11 +190,11 @@
  '(tool-bar-mode nil))
 
 ;; flycheck, 其中cppcheck默认就会调用cpplint
-;;(require 'flycheck-google-cpplint)
+(require 'flycheck-google-cpplint)
 ;; Add Google C++ Style checker.
 ;; In default, syntax checked by Clang and Cppcheck.
-;;(flycheck-add-next-checker 'c/c++-cppcheck
-;;                                '(warnings-only . c/c++-googlelint))
+(flycheck-add-next-checker 'c/c++-cppcheck
+			   '(warning . c/c++-googlelint))
 
 
 ;; org-mode
@@ -242,6 +244,7 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 
 ;; 目录别名
+;; 以@开头比
 (defvar drkm-fav:favourite-directories-alist
   '(("server"  . "/ssh:sails@182.92.131.224:~/")
     )

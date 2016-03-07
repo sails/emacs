@@ -26,7 +26,11 @@
     htmlize
     org2blog
     slime
+    zenburn-theme
+    move-text
   ) "a list of packages to ensure are installed at launch.")
+
+
 
 ; method to check if all packages are installed
 (defun packages-installed-p ()
@@ -99,12 +103,19 @@
 (global-set-key (kbd "C-=") 'hs-show-block)
 (global-set-key (kbd "C--") 'hs-hide-block)
 
+;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
+(global-set-key  [(M return)] 'toggle-frame-fullscreen)
+
+(setq frame-title-format "%b")
 
 ;; 窗口间方便跳转
 (global-set-key [M-left] 'windmove-left)
 (global-set-key [M-right] 'windmove-right)
 (global-set-key [M-up] 'windmove-up)
 (global-set-key [M-down] 'windmove-down)
+
+;; markdown
+(custom-set-variables '(markdown-command "/usr/local/bin/pandoc"))
 
 
 ;;********************** common *********************
@@ -189,12 +200,13 @@
  '(ecb-layout-window-sizes nil)
  '(ecb-options-version "2.40")
  '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
- '(ede-project-directories (quote ("/Users/sailsxu/Desktop/tt")))
  '(menu-bar-mode nil)
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 
-;; flycheck, 其中cppcheck默认就会调用cpplint
+
+;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
+;; https://github.com/google/styleguide.git，这里可以找到
 (require 'flycheck-google-cpplint)
 ;; Add Google C++ Style checker.
 ;; In default, syntax checked by Clang and Cppcheck.
@@ -213,6 +225,8 @@
 (setq org-src-tab-acts-natively t)
 
 
+(setq org-image-actual-width '(300 500))
+
 ;; comment
 (defun qiang-comment-dwim-line (&optional arg)
   "Replacement for the comment-dwim command.
@@ -229,6 +243,10 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 
 ;; slime
 (setq inferior-lisp-program "/usr/local/bin/sbcl")
+
+;; move-text 移动行<M-up> and <M-down>
+(require 'move-text)
+(move-text-default-bindings)
 
 ;; wordpress
 (setq org2blog/wp-blog-alist
@@ -251,15 +269,14 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
         ))
 
 ;; 第三方主题
-(defun load-customize-theme()
-  ;;(load-theme 'cherry-blossom)
-)
+;; (load-theme 'zenburn t)
 
 
 ;; 目录别名
 ;; 以@开头比
 (defvar drkm-fav:favourite-directories-alist
   '(("server"  . "/ssh:sails@182.92.131.224:~/")
+    ("sroot"  . "/ssh:sails@182.92.131.224:/")
     )
   "See `drkm-fav:handler'.")
 
@@ -329,5 +346,3 @@ as well as for files under the target directory."
 ;; Actually plug the feature into Emacs.
 (push '("\\`@" . drkm-fav:handler) file-name-handler-alist)
 
-
-(add-hook 'after-init-hook 'load-customize-theme)

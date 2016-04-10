@@ -83,6 +83,8 @@
                            (list (expand-file-name "~/workspace/")
                                  (expand-file-name "~/workspace/flygame/src/")
                                  (expand-file-name "~/workspace/saf/")
+                                 (expand-file-name "../")
+                                 (expand-file-name "../../")
                                  ))
   
 ;;  (Projectile-mode 1)
@@ -95,6 +97,7 @@
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 ;; flycheck 会让emacs变慢,默认不开
 (add-hook 'c-mode-common-hook 'flycheck-mode)
+(add-hook 'go-mode-hook 'flycheck-mode)
 
 
 (add-hook 'c-mode-hook 'hs-minor-mode)
@@ -150,28 +153,7 @@
   ;;  (setq ac-clang-complete-executable "/Users/sailsxu/Downloads/emacs-clang-complete-async-master/clang-complete")
   ;;  (setq ac-sources '(ac-source-clang-async))
   ;;  (ac-clang-launch-completion-process)
-  ;;  (add-to-list 'ac-clang-cflags "-I/home/sailsxu/workspace")
-
-  ;;  clang auto-complete(注意它是通过调用clang来进行补全的，所以include目录是clang的include而不要是gcc的)
-  ;; path can get by echo "" | clang -v -x c++ -E -
-  (setq ac-clang-flags
-        (mapcar (lambda (item)(concat "-I" item))
-                (split-string
-		 "
-                 ~/workspace/sails
-                /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../include/c++/v1
- /usr/local/include
-               /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/../lib/clang/6.0/include
-              /Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/include
-              /usr/include
-              /System/Library/Frameworks
-"
-                 )
-		)
-	)
-  
-  (setq ac-sources (append '(ac-source-clang) ac-sources))
-        
+  (add-to-list 'ac-clang-flags "-I/home/sailsxu/workspace")
   )
 ;; go语言自动补全,https://github.com/nsf/gocode，要去下载后端
 (require 'go-autocomplete)
@@ -212,6 +194,10 @@
 ;; In default, syntax checked by Clang and Cppcheck.
 (flycheck-add-next-checker 'c/c++-cppcheck
 			   '(warning . c/c++-googlelint))
+
+;; golang lint
+(add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs"))
+(require 'golint)
 
 
 ;; org-mode

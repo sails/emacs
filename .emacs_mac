@@ -98,6 +98,7 @@
 ;; flycheck 会让emacs变慢,默认不开
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
+(add-hook 'before-save-hook 'gofmt-before-save)
 
 
 (add-hook 'c-mode-hook 'hs-minor-mode)

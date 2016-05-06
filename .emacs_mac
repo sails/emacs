@@ -66,6 +66,43 @@
 (global-linum-mode 1)
 (column-number-mode t)
 
+;; 解决org表格里面中英文对齐的问题
+;; 这里为了方便更新大小时中英文仍然匹配，把它们的大小成对列出来
+(defvar emacs-english-font "Monaco"
+  "The font name of English.")
+
+(defvar emacs-cjk-font "Hiragino Sans GB W3"
+  "The font name for CJK.")
+(defvar emacs-font-size-pair '(12 . 14)
+  "Default font size pair for (english . chinese)")
+
+(defvar emacs-font-size-pair-list
+  '(( 5 .  6) (10 . 12) (12 . 14)
+    (13 . 16) (15 . 18) (17 . 20)
+    (19 . 22) (20 . 24) (21 . 26)
+    (24 . 28) (26 . 32) (28 . 34)
+    (30 . 36) (34 . 40) (36 . 44))
+  "This list is used to store matching (englis . chinese) font-size.")
+
+(defun font-exist-p (fontname)
+  "Test if this font is exist or not."
+  (if (or (not fontname) (string= fontname ""))
+      nil
+    (if (not (x-list-fonts fontname)) nil t)))
+
+(defun set-font (english chinese size-pair)
+  "Setup emacs English and Chinese font on x window-system."
+
+  (if (font-exist-p english)
+      (set-frame-font (format "%s:pixelsize=%d" english (car size-pair)) t))
+
+  (if (font-exist-p chinese)
+      (dolist (charset '(kana han symbol cjk-misc bopomofo))
+        (set-fontset-font (frame-parameter nil 'font) charset
+                          (font-spec :family chinese :size (cdr size-pair))))))
+;; Setup font size based on emacs-font-size-pair
+;; 但是这里有一个问题，就是当英文大小合适时，中文看起来很大，所以这里暂时不用
+;; (set-font emacs-english-font emacs-cjk-font emacs-font-size-pair)
 
 (defun my-c-style-set()
 ;;  (c-set-style "K&R")
@@ -77,15 +114,15 @@
   (cscope-minor-mode 1)
   (semantic-mode 1)
   ;; flycheck
-  (setq flycheck-clang-language-standard "c++11")
+  (setq flycheck-clang-language-standard "c++1y")
   ;; set include-path(flycheck-gcc-include-path or flycheck-clang-include-path)
   (setq flycheck-clang-include-path
-                           (list (expand-file-name "~/workspace/")
-                                 (expand-file-name "~/workspace/flygame/src/")
-                                 (expand-file-name "~/workspace/saf/")
-                                 (expand-file-name "../")
-                                 (expand-file-name "../../")
-                                 ))
+        (list (expand-file-name "~/workspace/")
+              (expand-file-name "~/workspace/flygame/src/")
+              (expand-file-name "~/workspace/saf/")
+              (expand-file-name "../")
+              (expand-file-name "../../")
+              ))
   
 ;;  (Projectile-mode 1)
   )
@@ -96,6 +133,7 @@
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 ;; flycheck 会让emacs变慢,默认不开
+(global-flycheck-mode)
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
 (add-hook 'before-save-hook 'gofmt-before-save)
@@ -119,7 +157,8 @@
 (global-set-key [M-down] 'windmove-down)
 
 ;; markdown
-(custom-set-variables '(markdown-command "/usr/local/bin/pandoc"))
+; (custom-set-variables '(markdown-command "/usr/local/bin/pandoc"))
+(setq markdown-command "pandoc -c ~/.emacs.d/github-pandoc.css --from markdown_github -t html5 --mathjax --highlight-style pygments --standalone")
 
 
 ;;********************** common *********************
@@ -195,7 +234,9 @@
 ;; In default, syntax checked by Clang and Cppcheck.
 (flycheck-add-next-checker 'c/c++-cppcheck
 			   '(warning . c/c++-googlelint))
+(custom-set-variables '(flycheck-cppcheck-checks "all"))
 
+                           
 ;; golang lint
 (add-to-list 'load-path (concat (getenv "GOPATH")  "/src/github.com/golang/lint/misc/emacs"))
 (require 'golint)
@@ -213,6 +254,10 @@
 
 
 (setq org-image-actual-width '(300 500))
+
+;; 禁用下划线转义,org导出时下划线的问题abc_def中的def会变成小标
+(setq org-use-sub-superscripts nil)
+(setq org-export-with-sub-superscripts nil)
 
 ;; comment
 (defun qiang-comment-dwim-line (&optional arg)

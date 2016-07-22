@@ -158,7 +158,7 @@
 
 ;; markdown
 ; (custom-set-variables '(markdown-command "/usr/local/bin/pandoc"))
-(setq markdown-command "pandoc -c ~/.emacs.d/github-pandoc.css --from markdown_github -t html5 --mathjax --highlight-style pygments --standalone")
+(custom-set-variables '(markdown-command "pandoc -c ~/.emacs.d/github-pandoc.css --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone"))
 
 
 ;;********************** common *********************

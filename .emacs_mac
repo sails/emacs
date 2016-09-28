@@ -4,14 +4,12 @@
 (package-initialize)
 
 
-
-(setq exec-path (append exec-path '("/usr/bin" "/usr/local/bin" "/Users/sailsxu/workspace/golang/bin" "/usr/local/go/bin")))
-
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
 ;; 启动自动检查安装配置
 (defvar required-packages
   '(
+    exec-path-from-shell
     yasnippet
     auto-complete
     auto-complete-clang-async
@@ -33,7 +31,6 @@
   ) "a list of packages to ensure are installed at launch.")
 
 
-
 ; method to check if all packages are installed
 (defun packages-installed-p ()
   (loop for p in required-packages
@@ -50,6 +47,16 @@
   (dolist (p required-packages)
     (when (not (package-installed-p p))
       (package-install p))))
+
+
+;; exec-path-from-shell这个插件很厉害，可以得到环境变量的值，在文档中说不可以得到myvar = $myvar:/bin这种取值的方式，但是实际却可以
+;; 它会自动复制MANPATH, PATH and exec-path，其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
+;;(setq exec-path (append exec-path '("/usr/bin" "/usr/local/bin" "/Users/sailsxu/workspace/golang/bin" "/usr/local/go/bin")))
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+(exec-path-from-shell-copy-env "GOPATH")
+
+
 
 ;;********************** common ********************
 ;; remote file

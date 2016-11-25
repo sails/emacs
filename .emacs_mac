@@ -175,12 +175,9 @@
  '(ecb-layout-window-sizes nil)
  '(ecb-options-version "2.40")
  '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
- '(flycheck-cppcheck-checks "all")
+ ;; '(flycheck-cppcheck-checks "all")
  '(markdown-command
    "pandoc -c ~/.emacs.d/github-pandoc.css --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
- '(package-selected-packages
-   (quote
-    (exec-path-from-shell zenburn-theme yasnippet yaml-mode xcscope toml-mode tle switch-window swift-mode sublimity sublime-themes slime quickrun protobuf-mode projectile php-mode org2blog move-text molokai-theme markdown-mode magit json-mode htmlize google-c-style go-mode go-autocomplete git-rebase-mode git-commit-mode flycheck-google-cpplint f ecb drag-stuff dockerfile-mode docker csharp-mode cmake-mode autopair auto-complete-clang-async auto-complete-clang aurora-theme)))
  '(tool-bar-mode nil))
 
 

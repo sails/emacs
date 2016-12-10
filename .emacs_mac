@@ -1,6 +1,6 @@
 (require 'package)
 (add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+             '("melpa" . "https://melpa.org/packages/") t)
 (package-initialize)
 
 
@@ -27,6 +27,7 @@
     org2blog
     slime
     zenburn-theme
+    sr-speedbar
     move-text
   ) "a list of packages to ensure are installed at launch.")
 
@@ -167,18 +168,23 @@
 
 ;; markdown
 ; (custom-set-variables '(markdown-command "/usr/local/bin/pandoc"))
+
+
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
  '(ecb-layout-window-sizes nil)
  '(ecb-options-version "2.40")
  '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
- ;; '(flycheck-cppcheck-checks "all")
+ '(flycheck-clang-language-standard "c11")
  '(markdown-command
    "pandoc -c ~/.emacs.d/github-pandoc.css --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
- '(tool-bar-mode nil))
+ '(scroll-bar-mode nil)
+ '(tool-bar-mode nil)
+ )
 
 
 ;;********************** common *********************
@@ -394,3 +400,4 @@ as well as for files under the target directory."
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+(put 'upcase-region 'disabled nil)

@@ -289,6 +289,9 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
 
+(require 'sr-speedbar)
+(speedbar-add-supported-extension ".go")
+
 ;; slime
 (setq inferior-lisp-program "/usr/local/bin/sbcl")
 
@@ -401,3 +404,7 @@ as well as for files under the target directory."
  ;; If there is more than one, they won't work right.
  )
 (put 'upcase-region 'disabled nil)
+
+
+
+

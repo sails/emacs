@@ -1,46 +1,40 @@
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "https://melpa.org/packages/") t)
+;; 国内的镜像
+(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
+                         ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
-
 
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
+
 ;; 启动自动检查安装配置
 (defvar required-packages
   '(
+    company
     exec-path-from-shell
     yasnippet
-    auto-complete
-    auto-complete-clang-async
-    auto-complete-clang
-    go-autocomplete
     flycheck
     flycheck-google-cpplint
-    google-c-style
-    xcscope
-    autopair
     projectile
+    xcscope
     magit
+    autopair
+    google-c-style
     ecb
-    htmlize
+    company-go
     org2blog
-    slime
     zenburn-theme
     sr-speedbar
-    move-text
+    markdown-mode
+    sr-speedbar
   ) "a list of packages to ensure are installed at launch.")
 
-
-; method to check if all packages are installed
 (defun packages-installed-p ()
   (loop for p in required-packages
         when (not (package-installed-p p)) do (return nil)
         finally (return t)))
-
-; if not all packages are installed, check one by one and install the missing ones.
+;; 依次查检进行安装
 (unless (packages-installed-p)
-  ; check for new packages (package versions)
   (message "%s" "Emacs is now refreshing its package database...")
   (package-refresh-contents)
   (message "%s" " done.")
@@ -50,103 +44,80 @@
       (package-install p))))
 
 
-;; exec-path-from-shell这个插件很厉害，可以得到环境变量的值，在文档中说不可以得到myvar = $myvar:/bin这种取值的方式，但是实际却可以
-;; 它会自动复制MANPATH, PATH and exec-path，其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
-;;(setq exec-path (append exec-path '("/usr/bin" "/usr/local/bin" "/Users/sailsxu/workspace/golang/bin" "/usr/local/go/bin")))
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
-(exec-path-from-shell-copy-env "GOPATH")
 
-
-
-;;********************** common ********************
-;; remote file
-(setq tramp-default-method "ssh")
-(setq tramp-default-user "sails")
-
+;; ////////////////common setting/////////////////
 ;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
 (when (eq system-type 'darwin) ;; mac specific settings
   (setq mac-option-modifier 'alt)
   (setq mac-command-modifier 'meta)
   (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
   )
+
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;;显示行号
 (global-linum-mode 1)
 (column-number-mode t)
+;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
+(global-set-key  [(M return)] 'toggle-frame-fullscreen)
 
-;; 解决org表格里面中英文对齐的问题
-;; 这里为了方便更新大小时中英文仍然匹配，把它们的大小成对列出来
-(defvar emacs-english-font "Monaco"
-  "The font name of English.")
+;; 窗口间方便跳转
+(global-set-key [M-left] 'windmove-left)
+(global-set-key [M-right] 'windmove-right)
+(global-set-key [M-up] 'windmove-up)
+(global-set-key [M-down] 'windmove-down)
 
-(defvar emacs-cjk-font "Hiragino Sans GB W3"
-  "The font name for CJK.")
-(defvar emacs-font-size-pair '(12 . 14)
-  "Default font size pair for (english . chinese)")
+;; 这个插件很厉害，可以得到环境变量的值, 它会自动复制MANPATH, PATH and exec-path，
+;; 其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+(exec-path-from-shell-copy-env "GOPATH")
 
-(defvar emacs-font-size-pair-list
-  '(( 5 .  6) (10 . 12) (12 . 14)
-    (13 . 16) (15 . 18) (17 . 20)
-    (19 . 22) (20 . 24) (21 . 26)
-    (24 . 28) (26 . 32) (28 . 34)
-    (30 . 36) (34 . 40) (36 . 44))
-  "This list is used to store matching (englis . chinese) font-size.")
+;; ////////////////common setting/////////////////
 
-(defun font-exist-p (fontname)
-  "Test if this font is exist or not."
-  (if (or (not fontname) (string= fontname ""))
-      nil
-    (if (not (x-list-fonts fontname)) nil t)))
 
-(defun set-font (english chinese size-pair)
-  "Setup emacs English and Chinese font on x window-system."
 
-  (if (font-exist-p english)
-      (set-frame-font (format "%s:pixelsize=%d" english (car size-pair)) t))
+;; ///////////////programe setting ///////////////
+(add-hook 'after-init-hook 'global-company-mode)
+(require 'yasnippet)
+(add-to-list 'yas-snippet-dirs "~/workspace/emacs24/snippets")
+(setq yas/prompt-functions '(yas/dropdown-prompt))
+(yas-global-mode 1)
 
-  (if (font-exist-p chinese)
-      (dolist (charset '(kana han symbol cjk-misc bopomofo))
-        (set-fontset-font (frame-parameter nil 'font) charset
-                          (font-spec :family chinese :size (cdr size-pair))))))
-;; Setup font size based on emacs-font-size-pair
-;; 但是这里有一个问题，就是当英文大小合适时，中文看起来很大，所以这里暂时不用
-;; (set-font emacs-english-font emacs-cjk-font emacs-font-size-pair)
-
-(defun my-c-style-set()
-;;  (c-set-style "K&R")
-;;  (c-set-offset 'innamespace 0)
-;;  (setq c-basic-offset 4)
-  ;;tab用空格代替
-  (setq-default indent-tabs-mode nil)
-  ;; cscope 查找代码很方便,先通过cscope-indexer -r来生成索引
-  (cscope-minor-mode 1)
-  (semantic-mode 1)
-  ;; flycheck
-  (setq flycheck-clang-language-standard "c++1y")
-  ;; set include-path(flycheck-gcc-include-path or flycheck-clang-include-path)
-  (setq flycheck-clang-include-path
-        (list (expand-file-name "~/workspace/")
-              (expand-file-name "~/workspace/flygame/src/")
-              (expand-file-name "~/workspace/saf/")
-              (expand-file-name "../")
-              (expand-file-name "../../")
-              ))
-  
-;;  (Projectile-mode 1)
-  )
 
 ;; google c++ style 检查
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-hook 'c-mode-common-hook 'my-c-style-set)
 (add-hook 'c-mode-common-hook 'google-set-c-style)
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
-;; flycheck 会让emacs变慢,默认不开
-;;(global-flycheck-mode)
+
+(add-hook 'c-mode-common-hook 'cscope-minor-mode)
+(add-hook 'c-mode-common-hook 'semantic-mode)
+
+;; flycheck 设置
+(setq flycheck-clang-language-standard "c++1y")
+(setq flycheck-clang-include-path
+      (list (expand-file-name "~/workspace/")
+	    (expand-file-name "~/workspace/flygame/src/")
+	    (expand-file-name "~/workspace/saf/")
+	    (expand-file-name "../")
+	    (expand-file-name "../../")
+	    ))
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
+
+;; cpplint
+;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
+;; https://github.com/google/styleguide.git，这里可以找到
+(require 'flycheck-google-cpplint)
+(flycheck-add-next-checker 'c/c++-cppcheck
+			   '(warning . c/c++-googlelint))
+
+;; golang 设置
+;; go语言自动补全,https://github.com/nsf/gocode，要去下载后端
 (add-hook 'before-save-hook 'gofmt-before-save)
+(defun my-go-mode-hook ()
+    (push 'company-go company-backends))
+(add-hook 'go-mode-hook 'my-go-mode-hook)
 
 
 (add-hook 'c-mode-hook 'hs-minor-mode)
@@ -155,132 +126,37 @@
 (global-set-key (kbd "C-=") 'hs-show-block)
 (global-set-key (kbd "C--") 'hs-hide-block)
 
-;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
-(global-set-key  [(M return)] 'toggle-frame-fullscreen)
+;; sr-speedbar
+(require 'sr-speedbar)
+(speedbar-add-supported-extension ".go")
 
-(setq frame-title-format "%b")
+;; ecb-mode
+(setq ecb-tip-of-the-day nil)
+;; 可以点击操作
+(setq ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
+;; 自带的布局http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html
+(setq ecb-layout-name "left10")
 
-;; 窗口间方便跳转
-(global-set-key [M-left] 'windmove-left)
-(global-set-key [M-right] 'windmove-right)
-(global-set-key [M-up] 'windmove-up)
-(global-set-key [M-down] 'windmove-down)
-
-;; markdown
-; (custom-set-variables '(markdown-command "/usr/local/bin/pandoc"))
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(column-number-mode t)
- '(ecb-layout-window-sizes nil)
- '(ecb-options-version "2.40")
- '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
- '(flycheck-clang-language-standard "c11")
- '(markdown-command
-   "pandoc -c ~/.emacs.d/github-pandoc.css --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
- '(scroll-bar-mode nil)
- '(tool-bar-mode nil)
- )
-
-
-;;********************** common *********************
-;; config file for yasnippet
-(require 'yasnippet)
-(setq yas/prompt-functions '(yas/dropdown-prompt))
-(yas-global-mode 1)
-
-;;common auto-complete 配置
-(require 'auto-complete-config)
-(defun ac-config-default ()
-  (setq-default ac-sources '(ac-source-yasnippet ac-source-semantic ac-source-files-in-current-dir ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
-  (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-  (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-  (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-  (add-hook 'css-mode-hook 'ac-css-mode-setup)
-  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  )
-
-(ac-config-default)
-(setq ac-use-menu-map t)
-(global-set-key "\M-/" 'auto-complete)
-
-;;clang for auto-complete async 配置(在mac上，不知道为什么，只能补全c语言相关的函数)
-;;(require 'auto-complete-clang-async)
-;;clang for auto-complete
-(require 'auto-complete-clang)
-
-;;自定义cc-mode的hook
-(defun ac-cc-mode-setup ()
-  ;;  clang auto-complete async相关配置
-  ;;  (setq ac-clang-complete-executable "/Users/sailsxu/Downloads/emacs-clang-complete-async-master/clang-complete")
-  ;;  (setq ac-sources '(ac-source-clang-async))
-  ;;  (ac-clang-launch-completion-process)
-  (add-to-list 'ac-clang-flags "-I/home/sailsxu/workspace")
-  )
-;; go语言自动补全,https://github.com/nsf/gocode，要去下载后端
-(require 'go-autocomplete)
-
-;;auto-complete hook
-(defun my-ac-config ()
-  (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-  (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-  (global-auto-complete-mode t)
-  )
-
-(my-ac-config)
-
+;; Disable buckets so that history buffer can display more entries
+(setq ecb-history-make-buckets 'never)
 
 ;; autopair mode
 (autopair-global-mode)
 
-;; ecb-mode
-(setq ecb-tip-of-the-day nil)
-;;设置可用鼠标点击
-
-
-
-;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
-;; https://github.com/google/styleguide.git，这里可以找到
-(require 'flycheck-google-cpplint)
-;; Add Google C++ Style checker.
-;; In default, syntax checked by Clang and Cppcheck.
-(flycheck-add-next-checker 'c/c++-cppcheck
-			   '(warning . c/c++-googlelint))
-
-
-                           
-;; golang lint
-(add-to-list 'load-path  "/Users/sailsxu/workspace/golang/src/github.com/golang/lint/misc/emacs")
-(require 'golint)
-
-
-;; org-mode
 ;; org 自动换行
 (add-hook 'org-mode-hook 
 (lambda () (setq truncate-lines nil)))
-
-
 ;;org 代码高亮
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
-
-
 (setq org-image-actual-width '(300 500))
-
 ;; 禁用下划线转义,org导出时下划线的问题abc_def中的def会变成小标
 (setq org-use-sub-superscripts nil)
 (setq org-export-with-sub-superscripts nil)
 
-;; comment
+
+;; 代码注释
 (defun qiang-comment-dwim-line (&optional arg)
-  "Replacement for the comment-dwim command.
-If no region is selected and current line is not blank and we are not at the end of the line,
-then comment current line.
-Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."
   (interactive "*P")
   (comment-normalize-vars)
   (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
@@ -289,15 +165,18 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
 
-(require 'sr-speedbar)
-(speedbar-add-supported-extension ".go")
+;; markdown
+(setq markdown-command "/usr/local/bin/pandoc --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
 
-;; slime
-(setq inferior-lisp-program "/usr/local/bin/sbcl")
+;; ///////////////programe setting ///////////////
 
-;; move-text 移动行<M-up> and <M-down>
-(require 'move-text)
-(move-text-default-bindings)
+
+
+;; //////////// Other ///////////////
+
+;; 编译远程文件
+(setq tramp-default-method "ssh")
+(setq tramp-default-user "sails")
 
 ;; wordpress
 (setq org2blog/wp-blog-alist
@@ -319,92 +198,25 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
          :tags-as-categories nil)
         ))
 
-;; 第三方主题
-;; (load-theme 'zenburn t)
+;; //////////// Other ///////////////
 
-
-;; 目录别名
-;; 以@开头比
-(defvar drkm-fav:favourite-directories-alist
-  '(("server"  . "/ssh:sails@182.92.131.224:~/")
-    ("sroot"  . "/ssh:sails@182.92.131.224:/")
-    )
-  "See `drkm-fav:handler'.")
-
-(defvar drkm-fav::fav-dirs-re
-  ;; TODO: Is tehre really no other way (than mapcar) to get the list
-  ;; of the keys of an alist?!?
-  (concat
-   "^@"
-   (regexp-opt
-    (mapcar 'car drkm-fav:favourite-directories-alist)
-    t))
-  "Internal variable that stores a regex computed from
-`drkm-fav:favourite-directories-alist'.  WARNING: This is not
-updated automatically if the later variable is changed.")
-
-(defun drkm-fav:handler (primitive &rest args)
-  "Magic handler for favourite directories.
-
-With this handler installed into `file-name-handler-alist', it is
-possible to use shortcuts for often used directories.  It uses
-the mapping in the alist `drkm-fav:favourite-directories-alist'.
-
-Once installed, say you have the following alist in the mapping
-variable:
-
-    ((\"dir-1\" . \"~/some/real/dir\")
-     (\"dir-2\" . \"c:/other/dir/for/windows/users\"))
-
-You can now use \"@dir-1\" while opening a file with C-x C-f for
-instance, with completion for the abbreviation names themselves
-as well as for files under the target directory."
-  (cond
-   ;; expand-file-name
-   ((and (eq primitive 'expand-file-name)
-         (string-match drkm-fav::fav-dirs-re (car args)))
-    (replace-match
-     (cdr (assoc (match-string 1 (car args))
-                 drkm-fav:favourite-directories-alist))
-     t t (car args)))
-   ;; file-name-completion
-   ((and (eq primitive 'file-name-completion)
-         (string-match "^@\\([^/]*\\)$" (car args)))
-    (let ((compl (try-completion
-                  (match-string 1 (car args))
-                  drkm-fav:favourite-directories-alist)))
-      (cond ((eq t compl)
-             (concat "@" (match-string 1 (car args)) "/"))
-            ((not compl)
-             nil)
-            (t
-             (concat "@" compl)))))
-   ;; file-name-all-completions
-   ((and (eq primitive 'file-name-all-completions)
-         (string-match "^@\\([^/]*\\)$" (car args)))
-    (all-completions
-     (match-string 1 (car args))
-     drkm-fav:favourite-directories-alist))
-   ;; Handle any primitive we don't know about (from the info node
-   ;; (info "(elisp)Magic File Names")).
-   (t (let ((inhibit-file-name-handlers
-             (cons 'drkm-fav:handler
-                   (and (eq inhibit-file-name-operation primitive)
-                        inhibit-file-name-handlers)))
-            (inhibit-file-name-operation primitive))
-        (apply primitive args)))))
-
-;; Actually plug the feature into Emacs.
-(push '("\\`@" . drkm-fav:handler) file-name-handler-alist)
-
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(custom-safe-themes
+   (quote
+    ("14f0fbf6f7851bfa60bf1f30347003e2348bf7a1005570fd758133c87dafe08f" default)))
+ '(ecb-options-version "2.50")
+ '(package-selected-packages
+   (quote
+    (php-mode company-go zenburn-theme yasnippet sr-speedbar projectile org2blog move-text magit flycheck exec-path-from-shell ecb)))
+ '(scroll-bar-mode nil)
+ '(tool-bar-mode nil))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
-(put 'upcase-region 'disabled nil)
-
-
-
-

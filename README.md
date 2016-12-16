@@ -1,4 +1,4 @@
-emacs24
+emacs
 =======
 
-emacs 24 config
+emacs config

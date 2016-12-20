@@ -11,8 +11,7 @@
 (defvar required-packages
   '(
     company
-    exec-path-from-shell
-    yasnippet
+    yasnippet    
     flycheck
     flycheck-google-cpplint
     projectile
@@ -24,9 +23,10 @@
     company-go
     org2blog
     zenburn-theme
-    sr-speedbar
     markdown-mode
     sr-speedbar
+    swiper
+    exec-path-from-shell
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -51,6 +51,9 @@
   (setq mac-option-modifier 'alt)
   (setq mac-command-modifier 'meta)
   (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
+  ;; 由于ls与linux中的不同，有些插件可能会报错
+  (require 'ls-lisp)
+  (setq ls-lisp-use-insert-directory-program nil)
   )
 
 ;;以 y/n 替代 yes/no
@@ -91,10 +94,12 @@
 (add-hook 'c-mode-common-hook 'google-make-newline-indent)
 
 (add-hook 'c-mode-common-hook 'cscope-minor-mode)
+;; 当开启semantic时，speedbar第一次展开一个文件的方法时会出错，这时只要重启关闭后再展示就正常了
 (add-hook 'c-mode-common-hook 'semantic-mode)
 
 ;; flycheck 设置
-(setq flycheck-clang-language-standard "c++1y")
+(add-hook 'c++-mode-hook
+	  (lambda () (setq flycheck-clang-language-standard "c++11")))
 (setq flycheck-clang-include-path
       (list (expand-file-name "~/workspace/")
 	    (expand-file-name "~/workspace/flygame/src/")
@@ -135,10 +140,18 @@
 ;; 可以点击操作
 (setq ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
 ;; 自带的布局http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html
-(setq ecb-layout-name "left10")
-
+(setq ecb-layout-name "left6")
+;; 由于ecb在emacs25中c-x c-f 打开问题有bug，官方正在解决https://github.com/ecb-home/ecb/issues/10
+;; 不过当打开ivy-mode时，可以正常操作
+;; (ivy-mode t)
 ;; Disable buckets so that history buffer can display more entries
 (setq ecb-history-make-buckets 'never)
+(global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
+
+;; swiper 查找文件时可以预览，可以通过c-n c-p进行前后查找，这样就不用c-r的反向查找功能了
+(global-set-key "\C-s" 'swiper)
+(global-set-key "\C-r" 'swiper)
+
 
 ;; autopair mode
 (autopair-global-mode)
@@ -205,13 +218,7 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(custom-safe-themes
-   (quote
-    ("14f0fbf6f7851bfa60bf1f30347003e2348bf7a1005570fd758133c87dafe08f" default)))
  '(ecb-options-version "2.50")
- '(package-selected-packages
-   (quote
-    (php-mode company-go zenburn-theme yasnippet sr-speedbar projectile org2blog move-text magit flycheck exec-path-from-shell ecb)))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 (custom-set-faces

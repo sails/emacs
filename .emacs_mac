@@ -58,6 +58,9 @@
 
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
+;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
+;; 当在c-x c-f打开文件时，M-p可以查看填入最近打开的文件，M-n可以恢复正常
+(recentf-mode t)
 ;;显示行号
 (global-linum-mode 1)
 (column-number-mode t)

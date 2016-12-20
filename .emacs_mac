@@ -152,8 +152,8 @@
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
 
 ;; swiper 查找文件时可以预览，可以通过c-n c-p进行前后查找，这样就不用c-r的反向查找功能了
-(global-set-key "\C-s" 'swiper)
-(global-set-key "\C-r" 'swiper)
+;;(global-set-key "\C-s" 'swiper)
+;;(global-set-key "\C-r" 'swiper)
 
 
 ;; autopair mode

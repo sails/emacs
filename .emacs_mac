@@ -99,6 +99,13 @@
 ;; 当开启semantic时，speedbar第一次展开一个文件的方法时会出错，这时只要重启关闭后再展示就正常了
 (add-hook 'c-mode-common-hook 'semantic-mode)
 
+;; xcscope 跳转文件有两种方式：一个是光标移动到函数位置,按回车; 另一个是用鼠标中键点击
+;; 第 2 种方式是在是太奇怪了,把它改到鼠标左键上
+(require 'xcscope)
+(define-key cscope-list-entry-keymap [mouse-1] 'cscope-select-entry-other-window)
+;; 另处，由于它默认是扫描当前目录的文件生成tag文件，所以如果要查找其它目录，则要改
+;; 变它们的父级目录cscope-set-initial-directory(a)
+
 ;; flycheck 设置
 (add-hook 'c++-mode-hook
 	  (lambda () (setq flycheck-clang-language-standard "c++11")))

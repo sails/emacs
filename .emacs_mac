@@ -25,7 +25,6 @@
     zenburn-theme
     markdown-mode
     sr-speedbar
-    swiper
     exec-path-from-shell
   ) "a list of packages to ensure are installed at launch.")
 
@@ -182,7 +181,7 @@
 
 
 ;; markdown
-(setq markdown-command "/usr/local/bin/pandoc --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
+(custom-set-variables '( markdown-command "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone"))
 
 ;; ///////////////programe setting ///////////////
 
@@ -224,6 +223,7 @@
  '(ecb-options-version "2.50")
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
+
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

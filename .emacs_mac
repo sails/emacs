@@ -1,11 +1,15 @@
 (require 'package)
 ;; 国内的镜像
-(setq package-archives '(("gnu"   . "http://elpa.emacs-china.org/gnu/")
-                         ("melpa" . "http://elpa.emacs-china.org/melpa/")))
+;;(add-to-list 'package-archives
+;;             '("melpa" . "https://melpa.org/packages/"))
+(setq package-archives '(
+			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")
+			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
+(eval-when-compile (require 'cl))
 
 ;; 启动自动检查安装配置
 (defvar required-packages
@@ -13,12 +17,10 @@
     company
     yasnippet    
     flycheck
-    flycheck-google-cpplint
     projectile
     xcscope
     magit
     autopair
-    google-c-style
     ecb
     company-go
     org2blog
@@ -26,6 +28,7 @@
     markdown-mode
     sr-speedbar
     exec-path-from-shell
+    multi-term
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -46,7 +49,9 @@
 
 ;; ////////////////common setting/////////////////
 ;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
+;; emacs-mac-port 已经把meta改过了
 (when (eq system-type 'darwin) ;; mac specific settings
+  (message "remap key")
   (setq mac-option-modifier 'alt)
   (setq mac-command-modifier 'meta)
   (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
@@ -55,11 +60,14 @@
   (setq ls-lisp-use-insert-directory-program nil)
   )
 
+
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
 ;; 当在c-x c-f打开文件时，M-p可以查看填入最近打开的文件，M-n可以恢复正常
 (recentf-mode t)
+(set-frame-font "monaco-12")
+;;(set-fontset-font t 'han (font-spec :family "monaco" :size 12))
 ;;显示行号
 (global-linum-mode 1)
 (column-number-mode t)
@@ -78,22 +86,41 @@
   (exec-path-from-shell-initialize))
 (exec-path-from-shell-copy-env "GOPATH")
 
+(require 'multi-term)
+(setq multi-term-program "/bin/bash")
+
 ;; ////////////////common setting/////////////////
 
 
 
 ;; ///////////////programe setting ///////////////
 (add-hook 'after-init-hook 'global-company-mode)
+;; any-company mode 默认是M-n M-p用于选择，但是习惯
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map (kbd "C-n") #'company-select-next)
+  (define-key company-active-map (kbd "C-p") #'company-select-previous))
+
 (require 'yasnippet)
-(add-to-list 'yas-snippet-dirs "~/workspace/emacs24/snippets")
+(add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
 (setq yas/prompt-functions '(yas/dropdown-prompt))
 (yas-global-mode 1)
 
 
+(setq c-default-style "linux"
+      c-basic-offset 4)
+
 ;; google c++ style 检查
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-hook 'c-mode-common-hook 'google-set-c-style)
-(add-hook 'c-mode-common-hook 'google-make-newline-indent)
+;; google 代码风格
+;;(add-hook 'c-mode-common-hook 'google-set-c-style)
+;;(add-hook 'c-mode-common-hook 'google-make-newline-indent)
+;; 一些团队内的风格
+(c-set-offset 'innamespace 0)
+(setq default-tab-width 4)
+(setq-default indent-tabs-mode nil)
+
 
 (add-hook 'c-mode-common-hook 'cscope-minor-mode)
 ;; 当开启semantic时，speedbar第一次展开一个文件的方法时会出错，这时只要重启关闭后再展示就正常了
@@ -116,18 +143,23 @@
       (list (expand-file-name "~/workspace/")
 	    (expand-file-name "~/workspace/flygame/src/")
 	    (expand-file-name "~/workspace/saf/")
+	    (expand-file-name "~/workspace/vas_lib_proj/")
+	    (expand-file-name "./")
 	    (expand-file-name "../")
 	    (expand-file-name "../../")
+
 	    ))
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
 
 ;; cpplint
 ;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
-;; https://github.com/google/styleguide.git，这里可以找到
-(require 'flycheck-google-cpplint)
-(flycheck-add-next-checker 'c/c++-cppcheck
-			   '(warning . c/c++-googlelint))
+;; https://github.com/google/styleguide.git，这里可以找
+;;(require 'flycheck-google-cpplint)
+;;(custom-set-variables
+;; '(flycheck-c/c++-googlelint-executable "/usr/local/bin/cpplint.py"))
+;;(flycheck-add-next-checker 'c/c++-cppcheck
+;;			   '(warning . c/c++-googlelint))
 
 ;; golang 设置
 ;; go语言自动补全,https://github.com/nsf/gocode，要去下载后端
@@ -146,27 +178,47 @@
 ;; sr-speedbar
 (require 'sr-speedbar)
 (speedbar-add-supported-extension ".go")
+(speedbar-add-supported-extension ".proto")
+(setq speedbar-use-images nil)
 
 ;; ecb-mode
+(require 'ecb)
+;; 由于ecb在emacs25中c-x c-f 打开问题有bug，官方正在解决https://github.com/ecb-home/ecb/issues/10
+(defun display-buffer-at-bottom--display-buffer-at-bottom-around (orig-fun &rest args)
+  "Bugfix for ECB: cannot use display-buffer-at-bottom', calldisplay-buffer-use-some-window' instead in ECB frame."
+  (if (and ecb-minor-mode (equal (selected-frame) ecb-frame))
+      (apply 'display-buffer-use-some-window args)
+    (apply orig-fun args)))
+(advice-add 'display-buffer-at-bottom :around #'display-buffer-at-bottom--display-buffer-at-bottom-around)
+
 (setq ecb-tip-of-the-day nil)
+
 ;; 可以点击操作
 (setq ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
 ;; 自带的布局http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html
-(setq ecb-layout-name "left6")
-;; 由于ecb在emacs25中c-x c-f 打开问题有bug，官方正在解决https://github.com/ecb-home/ecb/issues/10
-;; 不过当打开ivy-mode时，可以正常操作
-;; (ivy-mode t)
-;; Disable buckets so that history buffer can display more entries
+;; (setq ecb-layout-name "left6")
 (setq ecb-history-make-buckets 'never)
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
+
 
 ;; swiper 查找文件时可以预览，可以通过c-n c-p进行前后查找，这样就不用c-r的反向查找功能了
 ;;(global-set-key "\C-s" 'swiper)
 ;;(global-set-key "\C-r" 'swiper)
 
-
+(projectile-global-mode)
 ;; autopair mode
 (autopair-global-mode)
+
+;; 可以很方便的在头文件与cpp文件中切换
+(setq cc-other-file-alist
+      '(("\\.c"   (".h"))
+        ("\\.cpp"   (".h"))
+        ("\\.h"   (".c"".cpp"))))
+(setq ff-search-directories
+      '("." "../src" "../include"))
+(add-hook 'c-mode-common-hook
+          (lambda() 
+            (local-set-key  (kbd "C-c o") 'ff-find-other-file)))
 
 ;; org 自动换行
 (add-hook 'org-mode-hook 
@@ -191,13 +243,28 @@
 
 
 ;; markdown
-(custom-set-variables '( markdown-command "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone"))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(ecb-options-version "2.50")
+ '(markdown-command
+   "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
+ '(package-selected-packages
+   (quote
+    (smart-tabs-mode kakapo-mode auctex yaml-mode god-mode smali-mode neotree multi-term zenburn-theme yasnippet xcscope sr-speedbar spacemacs-theme protobuf-mode projectile org2blog markdown-mode magit helm-swoop google-c-style exec-path-from-shell ecb counsel company-go cmake-mode autopair)))
+ '(scroll-bar-mode nil)
+ '(tool-bar-mode nil))
 
 ;; ///////////////programe setting ///////////////
 
 
 
 ;; //////////// Other ///////////////
+
+;;(setq gdb-many-windows t)
+
 
 ;; 编译远程文件
 (setq tramp-default-method "ssh")
@@ -223,27 +290,22 @@
          :tags-as-categories nil)
         ))
 
+
+;; (add-hook 'LaTeX-mode-hook (lambda()
+;;                              (add-to-list 'TeX-command-list '("XeLaTeX" "xelatex %(mode) %t" TeX-run-TeX nil  (latex-mode) ))
+;; 			     (setq TeX-command-default "XeLaTeX")
+;; 			     (setq TeX-save-query  nil )
+;; 			     (setq TeX-show-compilation t)
+;; 			     (setq TeX-PDF-mode t)
+;; 			     ))
+
 ;; //////////// Other ///////////////
 
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(ecb-options-version "2.50")
- '(scroll-bar-mode nil)
- '(tool-bar-mode nil))
+
 
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
-
-
- ;; markdown settings
- '(markdown-header-face ((t (:inherit font-lock-function-name-face :weight bold :family "variable-pitch"))))
- '(markdown-header-face-1 ((t (:inherit markdown-header-face :height 1.8))))
- '(markdown-header-face-2 ((t (:inherit markdown-header-face :height 1.4))))
- '(markdown-header-face-3 ((t (:inherit markdown-header-face :height 1.2))))
  )

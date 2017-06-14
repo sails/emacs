@@ -26,9 +26,13 @@
     org2blog
     zenburn-theme
     markdown-mode
+    json-mode
     sr-speedbar
     exec-path-from-shell
     multi-term
+    rtags
+    company-rtags
+    google-c-style
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -108,18 +112,24 @@
 (yas-global-mode 1)
 
 
-(setq c-default-style "linux"
-      c-basic-offset 4)
+;; c++ 代码风格, gnu,linux,google,k&r都是把左花括号放到函数名同一行
+;; 由于团队要把它放到另一行，所以只能基于bsd改
+(defun my-c-common-hook ()
+  (progn
+    (c-add-style "mine" '("bsd"
+                          (c-basic-offset . 4)
+			  (indent-tabs-mode . nil)
+			  (c-offsets-alist
+			   (innamespace . 0)
+			   )
+			  ))
+    (setq c-default-style "mine")
+    (c-set-style "mine")
+    ))
+(add-hook 'c-mode-common-hook 'my-c-common-hook)
 
-;; google c++ style 检查
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-;; google 代码风格
-;;(add-hook 'c-mode-common-hook 'google-set-c-style)
-;;(add-hook 'c-mode-common-hook 'google-make-newline-indent)
-;; 一些团队内的风格
-(c-set-offset 'innamespace 0)
-(setq default-tab-width 4)
-(setq-default indent-tabs-mode nil)
+
+
 
 
 (add-hook 'c-mode-common-hook 'cscope-minor-mode)
@@ -151,6 +161,16 @@
 	    ))
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
+
+
+;; rtags
+(eval-after-load 'company
+  '(add-to-list
+    'company-backends 'company-rtags))
+(setq rtags-completions-enabled t)
+(setq rtags-autostart-diagnostics t)
+(rtags-enable-standard-keybindings)
+
 
 ;; cpplint
 ;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
@@ -205,7 +225,13 @@
 ;;(global-set-key "\C-s" 'swiper)
 ;;(global-set-key "\C-r" 'swiper)
 
+
 (projectile-global-mode)
+(setq projectile-enable-caching t)
+;; 默认它的find file是用外部的svn git命令来查找，但是如果有submodule时，所导致不多个project，而不是
+;; 一个。如果设置native时，会直接遍历目录，所以会慢很多，基本上不能接受。所以还是用svn，git来查找，只是
+;; 查找时，用c-c p F来，这样就是从已知的project中找查
+;; (setq projectile-indexing-method 'native)
 ;; autopair mode
 (autopair-global-mode)
 
@@ -241,7 +267,6 @@
     (comment-dwim arg)))
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
-
 ;; markdown
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
@@ -253,9 +278,10 @@
    "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
  '(package-selected-packages
    (quote
-    (smart-tabs-mode kakapo-mode auctex yaml-mode god-mode smali-mode neotree multi-term zenburn-theme yasnippet xcscope sr-speedbar spacemacs-theme protobuf-mode projectile org2blog markdown-mode magit helm-swoop google-c-style exec-path-from-shell ecb counsel company-go cmake-mode autopair)))
+    (google-c-style zenburn-theme yasnippet xcscope sr-speedbar projectile org2blog multi-term markdown-mode magit json-mode flycheck exec-path-from-shell ecb company-rtags company-go autopair)))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
+
 
 ;; ///////////////programe setting ///////////////
 

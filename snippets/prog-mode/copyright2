@@ -1,0 +1,15 @@
+# -*- mode: snippet; require-final-newline: nil -*-
+# name: copyright2
+# key: copyright2
+# binding: direct-keybinding
+# --
+/****************************************************************
+ *@file		    `(file-name-nondirectory buffer-file-name)`
+ *@brief	    $1
+ *@date		    `(format-time-string "%Y/%m/%d")`
+ *@author	    sailsxu sailsxu@tencent.com
+ *@version	    1.0
+ *@copyright    Copyright (c) `(format-time-string "%Y")` Tencent Inc. All Rights Reserved.
+ ****************************************************************/
+
+$0

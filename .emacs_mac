@@ -33,6 +33,8 @@
     rtags
     company-rtags
     google-c-style
+    ggtags
+    firestarter
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -92,6 +94,7 @@
 
 (require 'multi-term)
 (setq multi-term-program "/bin/bash")
+(setenv "GTAGSFORCECPP" "1")
 
 ;; ////////////////common setting/////////////////
 
@@ -104,7 +107,11 @@
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
-  (define-key company-active-map (kbd "C-p") #'company-select-previous))
+  (define-key company-active-map (kbd "C-p") #'company-select-previous)
+  '(add-to-list
+    'company-backends '(company-rtags company-yasnippet company-gtags))
+  )
+
 
 (require 'yasnippet)
 (add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
@@ -112,6 +119,7 @@
 (yas-global-mode 1)
 
 
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
 ;; c++ 代码风格, gnu,linux,google,k&r都是把左花括号放到函数名同一行
 ;; 由于团队要把它放到另一行，所以只能基于bsd改
 (defun my-c-common-hook ()
@@ -125,6 +133,7 @@
 			  ))
     (setq c-default-style "mine")
     (c-set-style "mine")
+    (ggtags-mode 1)
     ))
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
 
@@ -164,13 +173,12 @@
 
 
 ;; rtags
-(eval-after-load 'company
-  '(add-to-list
-    'company-backends 'company-rtags))
 (setq rtags-completions-enabled t)
 (setq rtags-autostart-diagnostics t)
 (rtags-enable-standard-keybindings)
 
+;; firestarter，用于设置每次保存时执行的命令
+(firestarter-mode)
 
 ;; cpplint
 ;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
@@ -278,7 +286,11 @@
    "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
  '(package-selected-packages
    (quote
-    (google-c-style zenburn-theme yasnippet xcscope sr-speedbar projectile org2blog multi-term markdown-mode magit json-mode flycheck exec-path-from-shell ecb company-rtags company-go autopair)))
+    (firestarter ggtags e2wm google-c-style zenburn-theme yasnippet xcscope sr-speedbar projectile org2blog multi-term markdown-mode magit json-mode flycheck exec-path-from-shell ecb company-rtags company-go autopair)))
+ '(safe-local-variable-values
+   (quote
+    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/branch_pgg_video_detail root@10.12.67.90::sailsxu"))))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 
@@ -294,7 +306,9 @@
 
 ;; 编译远程文件
 (setq tramp-default-method "ssh")
-(setq tramp-default-user "sails")
+(setq tramp-default-user "sailsxu")
+;;(setq tramp-default-method "rsync")
+;;(setq tramp-default-user "root")
 
 ;; wordpress
 (setq org2blog/wp-blog-alist

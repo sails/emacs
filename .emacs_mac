@@ -30,8 +30,6 @@
     sr-speedbar
     exec-path-from-shell
     multi-term
-    rtags
-    company-rtags
     google-c-style
     ggtags
     firestarter
@@ -109,7 +107,7 @@
   (define-key company-active-map (kbd "C-n") #'company-select-next)
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
   '(add-to-list
-    'company-backends '(company-rtags company-yasnippet company-gtags))
+    'company-backends '(company-yasnippet company-gtags))
   )
 
 
@@ -171,11 +169,6 @@
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
 
-
-;; rtags
-(setq rtags-completions-enabled t)
-(setq rtags-autostart-diagnostics t)
-(rtags-enable-standard-keybindings)
 
 ;; firestarter，用于设置每次保存时执行的命令
 (firestarter-mode)
@@ -286,7 +279,7 @@
    "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
  '(package-selected-packages
    (quote
-    (firestarter ggtags e2wm google-c-style zenburn-theme yasnippet xcscope sr-speedbar projectile org2blog multi-term markdown-mode magit json-mode flycheck exec-path-from-shell ecb company-rtags company-go autopair)))
+    (firestarter ggtags e2wm google-c-style zenburn-theme yasnippet xcscope sr-speedbar projectile org2blog multi-term markdown-mode magit json-mode flycheck exec-path-from-shell ecb company-go autopair)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")

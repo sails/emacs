@@ -31,8 +31,12 @@
     exec-path-from-shell
     multi-term
     google-c-style
+    flymake-google-cpplint
     ggtags
     firestarter
+    ycmd
+    company-ycmd
+    flycheck-ycmd
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -99,6 +103,21 @@
 
 
 ;; ///////////////programe setting ///////////////
+
+(require 'ycmd)
+(add-hook 'after-init-hook #'global-ycmd-mode)
+(set-variable 'ycmd-server-command '("/usr/bin/python" "/Users/sailsxu/workspace/ycmd/ycmd/__main__.py"))
+;; 这里是全局的配置，在项目中，可以单独设置flag,如果是cmake项目，可以直接导出json文件，如果是make项目，通过bear工具
+(set-variable 'ycmd-global-config "/Users/sailsxu/workspace/ycmd/examples/.ycm_extra_conf.py")
+(global-set-key (kbd "C-.") 'ycmd-goto)
+;; 在emacs25中M-,绑定到了pop-tag-mark，可以在这里用于返回，与ggtag相同
+;; 不过为了方便在C-.后操作，绑定到C-,
+(global-set-key (kbd "C-,") 'pop-tag-mark)
+
+;; ycmd company，如果不设置，ycmd的跳转会有问题
+(require 'company-ycmd)
+(company-ycmd-setup)
+
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
@@ -110,33 +129,36 @@
     'company-backends '(company-yasnippet company-gtags))
   )
 
-
 (require 'yasnippet)
 (add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
 (setq yas/prompt-functions '(yas/dropdown-prompt))
 (yas-global-mode 1)
 
-
 (add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-;; c++ 代码风格, gnu,linux,google,k&r都是把左花括号放到函数名同一行
-;; 由于团队要把它放到另一行，所以只能基于bsd改
-(defun my-c-common-hook ()
-  (progn
-    (c-add-style "mine" '("bsd"
-                          (c-basic-offset . 4)
-			  (indent-tabs-mode . nil)
-			  (c-offsets-alist
-			   (innamespace . 0)
-			   )
-			  ))
-    (setq c-default-style "mine")
-    (c-set-style "mine")
-    (ggtags-mode 1)
-    ))
+
+;; 基于google style修改编程风格
+(c-add-style "Google" google-c-style)
+(c-add-style "mine" '("Google"
+                      (c-basic-offset . 4)
+                      (c-offsets-alist . ((innamespace . 0)
+                                          (access-label . -)
+                                          (case-label . 0)
+                                          (member-init-intro . +)
+                                          (topmost-intro . 0)
+                                          (arglist-cont-nonempty . +)
+                                          ))))
+
+(defun my-c-common-hook()
+       (progn
+         (c-set-style "mine")
+         (ggtags-mode 1)
+         )
+       )
+
 (add-hook 'c-mode-common-hook 'my-c-common-hook)
-
-
-
+(add-hook 'c-mode-common-hook 'google-make-newline-indent)
+(setq default-tab-width 4)
+(setq-default indent-tabs-mode nil)
 
 
 (add-hook 'c-mode-common-hook 'cscope-minor-mode)
@@ -155,7 +177,13 @@
 
 ;; flycheck 设置
 (add-hook 'c++-mode-hook
-	  (lambda () (setq flycheck-clang-language-standard "c++11")))
+	  (lambda ()
+	    (setq flycheck-clang-language-standard "c++11")
+	    (flycheck-select-checker 'c/c++-cppcheck)
+	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
+        (require 'flycheck-ycmd)
+        (flycheck-ycmd-setup)
+	    ))
 (setq flycheck-clang-include-path
       (list (expand-file-name "~/workspace/")
 	    (expand-file-name "~/workspace/flygame/src/")
@@ -166,21 +194,22 @@
 	    (expand-file-name "../../")
 
 	    ))
+
 (add-hook 'c-mode-common-hook 'flycheck-mode)
 (add-hook 'go-mode-hook 'flycheck-mode)
 
 
+;; flymake
+(defun my-flymake-google-init ()
+  (require 'flymake-google-cpplint)
+  (flymake-google-cpplint-load)
+  )
+(add-hook 'c-mode-hook 'my-flymake-google-init)
+(add-hook 'c++-mode-hook 'my-flymake-google-init)
+
+
 ;; firestarter，用于设置每次保存时执行的命令
 (firestarter-mode)
-
-;; cpplint
-;; flycheck, 其中cppcheck默认就会调用cpplint,需要下载cpplint.py脚本
-;; https://github.com/google/styleguide.git，这里可以找
-;;(require 'flycheck-google-cpplint)
-;;(custom-set-variables
-;; '(flycheck-c/c++-googlelint-executable "/usr/local/bin/cpplint.py"))
-;;(flycheck-add-next-checker 'c/c++-cppcheck
-;;			   '(warning . c/c++-googlelint))
 
 ;; golang 设置
 ;; go语言自动补全,https://github.com/nsf/gocode，要去下载后端
@@ -200,7 +229,7 @@
 (require 'sr-speedbar)
 (speedbar-add-supported-extension ".go")
 (speedbar-add-supported-extension ".proto")
-(setq speedbar-use-images nil)
+;; (setq speedbar-use-images nil)
 
 ;; ecb-mode
 (require 'ecb)
@@ -274,16 +303,8 @@
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(column-number-mode t)
  '(ecb-options-version "2.50")
- '(markdown-command
-   "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
- '(package-selected-packages
-   (quote
-    (firestarter ggtags e2wm google-c-style zenburn-theme yasnippet xcscope sr-speedbar projectile org2blog multi-term markdown-mode magit json-mode flycheck exec-path-from-shell ecb company-go autopair)))
- '(safe-local-variable-values
-   (quote
-    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/branch_pgg_video_detail root@10.12.67.90::sailsxu"))))
  '(scroll-bar-mode nil)
  '(tool-bar-mode nil))
 

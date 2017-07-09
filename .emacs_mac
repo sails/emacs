@@ -18,13 +18,11 @@
     yasnippet    
     flycheck
     projectile
-    xcscope
     magit
     autopair
     ecb
     company-go
     org2blog
-    zenburn-theme
     markdown-mode
     json-mode
     sr-speedbar
@@ -96,11 +94,13 @@
 
 (require 'multi-term)
 (setq multi-term-program "/bin/bash")
-(setenv "GTAGSFORCECPP" "1")
 
-;; flymake 创建临时文件时，默认是在当前目录。当flymakecrash时，会导致在
-;; 源码目录增加以_flymake结尾的.h和.cpp文件
-(setq temporary-file-directory "~/.emacs.d/tmp/")
+;; gtags默认把.h文件当成c语言的处理
+(setenv "GTAGSFORCECPP" "1")
+(add-hook 'c++-mode-hook
+	  (lambda ()
+        (ggtags-mode 1)
+	    ))
 
 ;; ////////////////common setting/////////////////
 
@@ -108,25 +108,22 @@
 
 ;; ///////////////programe setting ///////////////
 
-(require 'ycmd)
-(add-hook 'after-init-hook #'global-ycmd-mode)
+(add-hook 'after-init-hook 'global-ycmd-mode)
 (set-variable 'ycmd-server-command '("/usr/bin/python" "/Users/sailsxu/workspace/ycmd/ycmd/__main__.py"))
 ;; 这里是全局的配置，在项目中，可以单独设置flag,如果是cmake项目，可以直接导出json文件，如果是make项目，通过bear工具
 (set-variable 'ycmd-global-config "/Users/sailsxu/workspace/ycmd/examples/.ycm_extra_conf.py")
-(set-variable 'ycmd-extra-conf-whitelist '("~/workspace/vas_lib_proj/*"))
-(set-variable 'ycmd-extra-conf-whitelist '("~/workspace/dev_team_two_proj/*"))
+(set-variable 'ycmd-extra-conf-whitelist '("~/workspace/vas_lib_proj/*" "~/workspace/dev_team_two_proj/*"))
 (global-set-key (kbd "C-.") 'ycmd-goto)
 ;; 在emacs25中M-,绑定到了pop-tag-mark，可以在这里用于返回，与ggtag相同
 ;; 不过为了方便在C-.后操作，绑定到C-,
 (global-set-key (kbd "C-,") 'pop-tag-mark)
 
-;; ycmd company，如果不设置，ycmd的跳转会有问题
-(require 'company-ycmd)
-(company-ycmd-setup)
 
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
+  (require 'company-ycmd)
+  (company-ycmd-setup)
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
@@ -157,7 +154,6 @@
 (defun my-c-common-hook()
        (progn
          (c-set-style "mine")
-         (ggtags-mode 1)
          )
        )
 
@@ -167,29 +163,9 @@
 (setq-default indent-tabs-mode nil)
 
 
-(add-hook 'c-mode-common-hook 'cscope-minor-mode)
 ;; 当开启semantic时，speedbar第一次展开一个文件的方法时会出错，这时只要重启关闭后再展示就正常了
 (add-hook 'c-mode-common-hook 'semantic-mode)
 
-;; xcscope 跳转文件有两种方式：一个是光标移动到函数位置,按回车; 另一个是用鼠标中键点击
-;; 第 2 种方式是在是太奇怪了,把它改到鼠标左键上
-(require 'xcscope)
-(define-key cscope-list-entry-keymap [mouse-1] 'cscope-select-entry-other-window)
-;; 使用分两布，产生生成cscope.out文件，然后再设置initial-director
-;; C-c s I(cscope-index-files)生成cscope.out文件
-;; 另处，由于它默认是扫描当前目录的文件生成cscope.out文件，所以如果要查找其它目录，则要改
-;; 变它们的父级目录cscope-set-initial-directory
-
-
-;; flycheck 设置
-(add-hook 'c++-mode-hook
-	  (lambda ()
-	    (setq flycheck-clang-language-standard "c++11")
-	    (flycheck-select-checker 'c/c++-cppcheck)
-	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
-        (require 'flycheck-ycmd)
-        (flycheck-ycmd-setup)
-	    ))
 (setq flycheck-clang-include-path
       (list (expand-file-name "~/workspace/")
 	    (expand-file-name "~/workspace/flygame/src/")
@@ -201,7 +177,17 @@
 
 	    ))
 
-(add-hook 'c-mode-common-hook 'flycheck-mode)
+(add-hook 'c++-mode-hook
+	  (lambda ()
+        ;; flycheck 设置
+        (flycheck-mode 1)
+	    (setq flycheck-clang-language-standard "c++11")
+	    (flycheck-select-checker 'c/c++-cppcheck)
+	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
+        (require 'flycheck-ycmd)
+        (flycheck-ycmd-setup)
+	    ))
+
 (add-hook 'go-mode-hook 'flycheck-mode)
 
 
@@ -211,6 +197,8 @@
   (custom-set-variables
    ;; 如果不设置verbose选项，filter不生效
    '(flymake-google-cpplint-verbose "--verbose=0")
+   ;; 默认是在当前目录，它有时会生成flymake.h/cpp结尾的临时文件，影响项目
+   '(flymake-google-cpplint-location 'tempdir)
    '(flymake-google-cpplint-filter "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references")
    )
   (flymake-google-cpplint-load)
@@ -322,7 +310,7 @@
  '(flymake-google-cpplint-verbose "--verbose=0")
  '(package-selected-packages
    (quote
-    (flycheck-ycmd company-ycmd ycmd firestarter ggtags flymake-google-cpplint google-c-style multi-term exec-path-from-shell sr-speedbar json-mode markdown-mode zenburn-theme org2blog company-go ecb autopair magit xcscope projectile flycheck yasnippet company)))
+    (flycheck-ycmd company-ycmd ycmd firestarter ggtags flymake-google-cpplint google-c-style multi-term exec-path-from-shell sr-speedbar json-mode markdown-mode org2blog company-go ecb autopair magit projectile flycheck yasnippet company)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")

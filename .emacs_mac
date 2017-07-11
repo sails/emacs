@@ -35,6 +35,8 @@
     ycmd
     company-ycmd
     flycheck-ycmd
+    swiper
+    ivy
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -148,7 +150,6 @@
                                           (case-label . 0)
                                           (member-init-intro . +)
                                           (topmost-intro . 0)
-                                          (arglist-cont-nonempty . +)
                                           ))))
 
 (defun my-c-common-hook()
@@ -226,10 +227,11 @@
 
 ;; sr-speedbar
 (require 'sr-speedbar)
+(setq sr-speedbar-right-side nil)
 (speedbar-add-supported-extension ".go")
 (speedbar-add-supported-extension ".proto")
 (speedbar-add-supported-extension ".jce")
-;; (setq speedbar-use-images nil)
+(setq speedbar-use-images nil)
 
 ;; ecb-mode
 (require 'ecb)
@@ -252,8 +254,11 @@
 
 
 ;; swiper 查找文件时可以预览，可以通过c-n c-p进行前后查找，这样就不用c-r的反向查找功能了
-;;(global-set-key "\C-s" 'swiper)
-;;(global-set-key "\C-r" 'swiper)
+;; (global-set-key "\C-s" 'swiper)
+;; (global-set-key "\C-r" 'swiper)
+
+;; ivy
+(ivy-mode 1)
 
 
 (projectile-global-mode)
@@ -307,10 +312,11 @@
  '(ecb-options-version "2.50")
  '(flymake-google-cpplint-filter
    "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references")
+ '(flymake-google-cpplint-location (quote tempdir))
  '(flymake-google-cpplint-verbose "--verbose=0")
  '(package-selected-packages
    (quote
-    (flycheck-ycmd company-ycmd ycmd firestarter ggtags flymake-google-cpplint google-c-style multi-term exec-path-from-shell sr-speedbar json-mode markdown-mode org2blog company-go ecb autopair magit projectile flycheck yasnippet company)))
+    (swiper ivy helm-gtags helm neotree psvn flycheck-ycmd company-ycmd ycmd firestarter ggtags flymake-google-cpplint google-c-style multi-term exec-path-from-shell sr-speedbar json-mode markdown-mode org2blog company-go ecb autopair magit projectile flycheck yasnippet company)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")

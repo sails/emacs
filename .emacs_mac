@@ -331,8 +331,36 @@
 
 ;; //////////// Other ///////////////
 
-;;(setq gdb-many-windows t)
+;; 复制一个单词
+(defun copy-word (&optional arg)
+ "Copy words at point"
+ (interactive "P")
+ (let ((beg (progn (if (looking-back "[a-zA-Z0-9]" 1) (backward-word 1)) (point))) 
+	(end (progn (forward-word arg) (point))))
+ (copy-region-as-kill beg end))
+ )
+(global-set-key (kbd "C-c w") 'copy-word)
 
+;; 复制一行
+(defun copy-line (&optional arg)
+  "Save current line into Kill-Ring without mark the line"
+  (interactive "P")
+  (let ((beg (line-beginning-position)) 
+        (end (line-end-position arg)))
+    (copy-region-as-kill beg end))
+  )
+(global-set-key (kbd "C-c l")  'copy-line)
+
+;; 复制一段
+(defun copy-paragraph (&optional arg)
+  "Copy paragraphes at point"
+  (interactive "P")
+  (copy-thing 'backward-paragraph 'forward-paragraph arg)
+  (paste-to-mark arg)
+  )
+(global-set-key (kbd "C-c p")  'copy-paragraph)
+
+;;(setq gdb-many-windows t)
 
 ;; 编译远程文件
 (setq tramp-default-method "ssh")

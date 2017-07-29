@@ -339,7 +339,7 @@
 	(end (progn (forward-word arg) (point))))
  (copy-region-as-kill beg end))
  )
-(global-set-key (kbd "C-c w") 'copy-word)
+(global-set-key (kbd "C-c C-w") 'copy-word)
 
 ;; 复制一行
 (defun copy-line (&optional arg)
@@ -349,7 +349,7 @@
         (end (line-end-position arg)))
     (copy-region-as-kill beg end))
   )
-(global-set-key (kbd "C-c l")  'copy-line)
+(global-set-key (kbd "C-c C-l")  'copy-line)
 
 ;; 复制一段
 (defun copy-paragraph (&optional arg)
@@ -358,7 +358,7 @@
   (copy-thing 'backward-paragraph 'forward-paragraph arg)
   (paste-to-mark arg)
   )
-(global-set-key (kbd "C-c p")  'copy-paragraph)
+(global-set-key (kbd "C-c C-p")  'copy-paragraph)
 
 ;;(setq gdb-many-windows t)
 

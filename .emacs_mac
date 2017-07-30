@@ -33,7 +33,6 @@
     ggtags
     firestarter
     ycmd
-    company-ycmd
     flycheck-ycmd
     swiper
     ivy
@@ -124,14 +123,12 @@
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
-  (require 'company-ycmd)
-  (company-ycmd-setup)
   (define-key company-active-map (kbd "M-n") nil)
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
-  '(add-to-list
-    'company-backends '(company-yasnippet company-gtags))
+  (add-to-list
+   'company-backends '(company-yasnippet company-gtags))
 
   ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
   (setq company-backends (delete 'company-semantic company-backends))

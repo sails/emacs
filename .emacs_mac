@@ -33,7 +33,6 @@
     ggtags
     firestarter
     ycmd
-    flycheck-ycmd
     swiper
     ivy
   ) "a list of packages to ensure are installed at launch.")
@@ -185,8 +184,6 @@
 	    (setq flycheck-clang-language-standard "c++11")
 	    (flycheck-select-checker 'c/c++-cppcheck)
 	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
-        (require 'flycheck-ycmd)
-        (flycheck-ycmd-setup)
 	    ))
 
 (add-hook 'go-mode-hook 'flycheck-mode)
@@ -314,9 +311,6 @@
    "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references")
  '(flymake-google-cpplint-location (quote tempdir))
  '(flymake-google-cpplint-verbose "--verbose=0")
- '(package-selected-packages
-   (quote
-    (swiper ivy helm-gtags helm neotree psvn flycheck-ycmd company-ycmd ycmd firestarter ggtags flymake-google-cpplint google-c-style multi-term exec-path-from-shell sr-speedbar json-mode markdown-mode org2blog company-go ecb autopair magit projectile flycheck yasnippet company)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")

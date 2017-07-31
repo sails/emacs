@@ -33,6 +33,7 @@
     ggtags
     firestarter
     ycmd
+    company-ycmd
     swiper
     ivy
   ) "a list of packages to ensure are installed at launch.")
@@ -108,17 +109,19 @@
 
 ;; ///////////////programe setting ///////////////
 
+
 (add-hook 'after-init-hook 'global-ycmd-mode)
 (set-variable 'ycmd-server-command '("/usr/bin/python" "/Users/sailsxu/workspace/ycmd/ycmd/__main__.py"))
 ;; 这里是全局的配置，在项目中，可以单独设置flag,如果是cmake项目，可以直接导出json文件，如果是make项目，通过bear工具
 (set-variable 'ycmd-global-config "/Users/sailsxu/workspace/ycmd/examples/.ycm_extra_conf.py")
-(set-variable 'ycmd-extra-conf-whitelist '("~/workspace/vas_lib_proj/*" "~/workspace/dev_team_two_proj/*"))
+ (set-variable 'ycmd-extra-conf-whitelist '("~/workspace/vas_lib_proj/*" "~/workspace/dev_team_two_proj/*"))
 (global-set-key (kbd "C-.") 'ycmd-goto)
 ;; 在emacs25中M-,绑定到了pop-tag-mark，可以在这里用于返回，与ggtag相同
 ;; 不过为了方便在C-.后操作，绑定到C-,
 (global-set-key (kbd "C-,") 'pop-tag-mark)
 
 
+(require 'company-ycmd)
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
@@ -126,9 +129,11 @@
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
-  (add-to-list
-   'company-backends '(company-yasnippet company-gtags))
 
+  ;; company-yasnippet会造成在以.开始的补全中，出现很多无用的运算符号
+  (add-to-list
+   'company-backends '(company-gtags company-ycmd))
+  
   ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
   (setq company-backends (delete 'company-semantic company-backends))
   )

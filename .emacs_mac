@@ -32,8 +32,6 @@
     flymake-google-cpplint
     ggtags
     firestarter
-    ycmd
-    company-ycmd
     swiper
     ivy
     edit-at-point
@@ -111,19 +109,6 @@
 
 ;; ///////////////programe setting ///////////////
 
-
-(add-hook 'after-init-hook 'global-ycmd-mode)
-(set-variable 'ycmd-server-command '("/usr/bin/python" "/Users/sailsxu/workspace/ycmd/ycmd/__main__.py"))
-;; 这里是全局的配置，在项目中，可以单独设置flag,如果是cmake项目，可以直接导出json文件，如果是make项目，通过bear工具
-(set-variable 'ycmd-global-config "/Users/sailsxu/workspace/ycmd/examples/.ycm_extra_conf.py")
-(set-variable 'ycmd-extra-conf-whitelist '("~/workspace/vas_lib_proj/*" "~/workspace/dev_team_two_proj/*"))
-(global-set-key (kbd "C-.") 'ycmd-goto)
-;; 在emacs25中M-,绑定到了pop-tag-mark，可以在这里用于返回，与ggtag相同
-;; 不过为了方便在C-.后操作，绑定到C-,
-(global-set-key (kbd "C-,") 'pop-tag-mark)
-
-
-(require 'company-ycmd)
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
@@ -135,7 +120,7 @@
 
   ;; company-yasnippet会造成在以.开始的补全中，出现很多无用的运算符号
   (add-to-list
-   'company-backends '(company-gtags company-ycmd))
+   'company-backends '(company-gtags))
 ;;  (add-to-list
 ;;   'company-backends '(company-gtags))
   (setq company-idle-delay 0.15)
@@ -327,7 +312,7 @@
  '(flymake-google-cpplint-verbose "--verbose=0")
  '(package-selected-packages
    (quote
-    (urlenc edit-at-point quickrun zenburn-theme yasnippet xcscope swiper sr-speedbar psvn projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint flycheck-ycmd firestarter exec-path-from-shell ecb company-ycmd company-irony company-go autopair)))
+    (urlenc edit-at-point quickrun zenburn-theme yasnippet xcscope swiper sr-speedbar psvn projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint firestarter exec-path-from-shell ecb company-irony company-go autopair)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")

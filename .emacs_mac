@@ -7,6 +7,8 @@
 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
+(add-to-list 'load-path "~/.emacs.d/lisp/")
+
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
 (eval-when-compile (require 'cl))
@@ -36,6 +38,7 @@
     ivy
     edit-at-point
     urlenc
+    reveal-in-osx-finder
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -103,11 +106,18 @@
         (ggtags-mode 1)
 	    ))
 
+;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
+(require 'reveal-in-osx-finder)
+
+
+
 ;; ////////////////common setting/////////////////
 
 
 
 ;; ///////////////programe setting ///////////////
+
+(require 'init-jce)
 
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
@@ -312,7 +322,7 @@
  '(flymake-google-cpplint-verbose "--verbose=0")
  '(package-selected-packages
    (quote
-    (urlenc edit-at-point quickrun zenburn-theme yasnippet xcscope swiper sr-speedbar psvn projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint firestarter exec-path-from-shell ecb company-irony company-go autopair)))
+    (reveal-in-osx-finder smex urlenc edit-at-point quickrun zenburn-theme yasnippet xcscope swiper sr-speedbar psvn projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint firestarter exec-path-from-shell ecb company-irony company-go autopair)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")

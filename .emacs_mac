@@ -76,11 +76,14 @@
 ;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
 ;; 当在c-x c-f打开文件时，M-p可以查看填入最近打开的文件，M-n可以恢复正常
 (recentf-mode t)
-(set-frame-font "monaco-12")
+(set-frame-font "Menlo-12")
 ;;(set-fontset-font t 'han (font-spec :family "monaco" :size 12))
 ;;显示行号
 (global-linum-mode 1)
-(column-number-mode t)
+;;显示列
+(column-number-mode 1)
+(scroll-bar-mode 0)
+(tool-bar-mode 0)
 ;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
 (global-set-key  [(M return)] 'toggle-frame-fullscreen)
 
@@ -203,12 +206,12 @@
    '(flymake-google-cpplint-verbose "--verbose=0")
    ;; 默认是在当前目录，它有时会生成flymake.h/cpp结尾的临时文件，影响项目
    '(flymake-google-cpplint-location 'tempdir)
-   '(flymake-google-cpplint-filter "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references")
+   '(flymake-google-cpplint-filter "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references,-whitespace/newline")
    )
   (flymake-google-cpplint-load)
   )
-;; (add-hook 'c-mode-hook 'my-flymake-google-init)
-;; (add-hook 'c++-mode-hook 'my-flymake-google-init)
+(add-hook 'c-mode-hook 'my-flymake-google-init)
+(add-hook 'c++-mode-hook 'my-flymake-google-init)
 
 
 ;; firestarter，用于设置每次保存时执行的命令
@@ -305,32 +308,6 @@
     (comment-dwim arg)))
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
-;; markdown
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(column-number-mode t)
- '(custom-safe-themes
-   (quote
-    ("67e998c3c23fe24ed0fb92b9de75011b92f35d3e89344157ae0d544d50a63a72" default)))
- '(ecb-options-version "2.50")
- '(flymake-google-cpplint-filter
-   "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references")
- '(flymake-google-cpplint-location (quote tempdir))
- '(flymake-google-cpplint-verbose "--verbose=0")
- '(package-selected-packages
-   (quote
-    (reveal-in-osx-finder smex urlenc edit-at-point quickrun zenburn-theme yasnippet xcscope swiper sr-speedbar psvn projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint firestarter exec-path-from-shell ecb company-irony company-go autopair)))
- '(safe-local-variable-values
-   (quote
-    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_lib_proj root@10.12.67.90::sailsxu"))))
- '(scroll-bar-mode nil)
- '(tool-bar-mode nil))
-
-
 ;; ///////////////programe setting ///////////////
 
 
@@ -392,3 +369,6 @@
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  )
+
+
+

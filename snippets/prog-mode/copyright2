@@ -3,13 +3,17 @@
 # key: copyright2
 # binding: direct-keybinding
 # --
-/****************************************************************
- *@file		    `(file-name-nondirectory buffer-file-name)`
- *@brief	    $1
- *@date		    `(format-time-string "%Y/%m/%d")`
- *@author	    sailsxu sailsxu@tencent.com
- *@version	    1.0
- *@copyright    Copyright (c) `(format-time-string "%Y")` Tencent Inc. All Rights Reserved.
- ****************************************************************/
+// Copyright (C) `(format-time-string "%Y")` sails Authors.
+// All rights reserved.
+//
+// Official git repository and contact information can be found at
+// https://github.com/sails and http://www.sailsxu.com/.
+//
+// Filename: `(file-name-nondirectory buffer-file-name)`
+// Description: $2
+//
+// Author: sailsxu <sailsxu@gmail.com>
+// Created: `(format-time-string "%Y-%m-%d %H:%M:%S")`
+
 
 $0

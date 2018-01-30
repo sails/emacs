@@ -7,7 +7,9 @@
 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-(add-to-list 'load-path "~/.emacs.d/lisp/")
+(setq url-proxy-services '(("http" . "dev-proxy.oa.com:8080")))
+
+(add-to-list 'load-path "~/workspace/emacs/lisp")
 
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
@@ -24,7 +26,6 @@
     autopair
     ecb
     company-go
-    org2blog
     markdown-mode
     json-mode
     sr-speedbar
@@ -36,9 +37,12 @@
     firestarter
     swiper
     ivy
+    helm
     edit-at-point
     urlenc
     reveal-in-osx-finder
+    company-c-headers
+    helm-gtags
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -103,16 +107,18 @@
 (setq multi-term-program "/bin/bash")
 
 ;; gtags默认把.h文件当成c语言的处理
-(setenv "GTAGSFORCECPP" "1")
-(add-hook 'c++-mode-hook
-	  (lambda ()
-        (ggtags-mode 1)
-	    ))
+
+;; (setenv "GTAGSFORCECPP" "1")
+;; (add-hook 'c++-mode-hook
+;; 	  (lambda ()
+;;         (ggtags-mode 1)
+;; 	    ))
 
 ;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
 (require 'reveal-in-osx-finder)
 
-
+;; 大小写M-u,M-l
+(put 'upcase-region 'disabled nil)
 
 ;; ////////////////common setting/////////////////
 
@@ -134,13 +140,21 @@
   ;; company-yasnippet会造成在以.开始的补全中，出现很多无用的运算符号
   (add-to-list
    'company-backends '(company-gtags))
-;;  (add-to-list
-;;   'company-backends '(company-gtags))
   (setq company-idle-delay 0.15)
   
   ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
   (setq company-backends (delete 'company-semantic company-backends))
   )
+
+(setq company-c-headers-path-user
+      (list (expand-file-name "~/workspace/")
+            (expand-file-name "~/workspace/flygame/src/")
+            (expand-file-name "~/workspace/saf/")
+            (expand-file-name "~/workspace/vas_lib_proj/")
+            (expand-file-name "./")
+            (expand-file-name "../")
+            (expand-file-name "../../")
+            ))
 
 (require 'yasnippet)
 (add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
@@ -154,7 +168,7 @@
 (c-add-style "mine" '("Google"
                       (c-basic-offset . 4)
                       (c-offsets-alist . ((innamespace . 0)
-                                          (access-label . -)
+                                          (access-label . -3)
                                           (case-label . 0)
                                           (member-init-intro . +)
                                           (topmost-intro . 0)
@@ -198,22 +212,6 @@
 (add-hook 'go-mode-hook 'flycheck-mode)
 
 
-;; flymake
-(defun my-flymake-google-init ()
-  (require 'flymake-google-cpplint)
-  (custom-set-variables
-   ;; 如果不设置verbose选项，filter不生效
-   '(flymake-google-cpplint-verbose "--verbose=0")
-   ;; 默认是在当前目录，它有时会生成flymake.h/cpp结尾的临时文件，影响项目
-   '(flymake-google-cpplint-location 'tempdir)
-   '(flymake-google-cpplint-filter "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references,-whitespace/newline")
-   )
-  (flymake-google-cpplint-load)
-  )
-(add-hook 'c-mode-hook 'my-flymake-google-init)
-(add-hook 'c++-mode-hook 'my-flymake-google-init)
-
-
 ;; firestarter，用于设置每次保存时执行的命令
 (firestarter-mode)
 
@@ -254,7 +252,7 @@
 ;; 可以点击操作
 (setq ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
 ;; 自带的布局http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html
-;; (setq ecb-layout-name "left6")
+(setq ecb-layout-name "left6")
 (setq ecb-history-make-buckets 'never)
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
 
@@ -264,7 +262,32 @@
 ;; (global-set-key "\C-r" 'swiper)
 
 ;; ivy
-(ivy-mode 1)
+;; (ivy-mode 1)
+
+;; helm
+(helm-mode 1)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
+(global-set-key (kbd "M-x") 'helm-M-x)  ;; 它比ivy的方便些，有历史记录
+
+;;; Enable helm-gtags-mode
+(setenv "GTAGSFORCECPP" "1")
+(add-hook 'c-mode-hook 'helm-gtags-mode)
+(add-hook 'c++-mode-hook 'helm-gtags-mode)
+(add-hook 'asm-mode-hook 'helm-gtags-mode)
+
+;; customize
+(custom-set-variables
+ '(helm-gtags-path-style 'relative)
+ '(helm-gtags-ignore-case t)
+ '(helm-gtags-auto-update t))
+
+;; key bindings
+(with-eval-after-load 'helm-gtags
+  (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
+  (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-find-tag-from-here)
+  (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
+  (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack))
 
 
 (projectile-global-mode)
@@ -324,11 +347,31 @@
 
 ;; 编译远程文件
 (setq tramp-default-method "ssh")
-(setq tramp-default-user "sailsxu")
+(setq tramp-default-user "root")
 ;;(setq tramp-default-method "rsync")
 ;;(setq tramp-default-user "root")
 
-
+;; copy buffer path
+(defun copy-buffer-file-name-as-kill(choice)
+  "Copy the buffer-file-name to the kill-ring"
+  (interactive "cCopy Buffer Name (f) full, (d) directory, (n) name")
+  (let ((new-kill-string)
+        (name (if (eq major-mode 'dired-mode)
+                  (dired-get-filename)
+                (or (buffer-file-name) ""))))
+    (cond ((eq choice ?f)
+           (setq new-kill-string name))
+          ((eq choice ?d)
+           (setq new-kill-string (file-name-directory name)))
+          ((eq choice ?n)
+           (setq new-kill-string (file-name-nondirectory name)))
+          (t (message "Quit")))
+    (when new-kill-string
+      (message "%s copied" new-kill-string)
+      (kill-new new-kill-string)
+      )
+    )
+)
 
 ;; wordpress
 (setq org2blog/wp-blog-alist
@@ -371,4 +414,21 @@
  )
 
 
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(flymake-google-cpplint-filter
+   "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references,-whitespace/newline")
+ '(flymake-google-cpplint-location (quote tempdir))
+ '(flymake-google-cpplint-verbose "--verbose=0")
+ '(package-selected-packages
+   (quote
+    (company-lua lua-mode magit-svn company-c-headers psvn zenburn-theme yasnippet xcscope urlenc swiper sr-speedbar solarized-theme smex reveal-in-osx-finder quickrun projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint flycheck-ycmd firestarter exec-path-from-shell edit-at-point ecb company-ycmd company-irony company-go bind-key autopair)))
+ '(safe-local-variable-values
+   (quote
+    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_lib_proj root@10.12.67.90::sailsxu")))))
 

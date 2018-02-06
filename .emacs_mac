@@ -19,7 +19,7 @@
 (defvar required-packages
   '(
     company
-    yasnippet    
+    yasnippet
     flycheck
     projectile
     magit
@@ -30,18 +30,14 @@
     json-mode
     sr-speedbar
     exec-path-from-shell
-    multi-term
     google-c-style
     flymake-google-cpplint
-    ggtags
     firestarter
-    swiper
-    ivy
     helm
+    ivy
     edit-at-point
     urlenc
     reveal-in-osx-finder
-    company-c-headers
     helm-gtags
   ) "a list of packages to ensure are installed at launch.")
 
@@ -103,17 +99,6 @@
   (exec-path-from-shell-initialize))
 (exec-path-from-shell-copy-env "GOPATH")
 
-(require 'multi-term)
-(setq multi-term-program "/bin/bash")
-
-;; gtags默认把.h文件当成c语言的处理
-
-;; (setenv "GTAGSFORCECPP" "1")
-;; (add-hook 'c++-mode-hook
-;; 	  (lambda ()
-;;         (ggtags-mode 1)
-;; 	    ))
-
 ;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
 (require 'reveal-in-osx-finder)
 
@@ -145,16 +130,6 @@
   ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
   (setq company-backends (delete 'company-semantic company-backends))
   )
-
-(setq company-c-headers-path-user
-      (list (expand-file-name "~/workspace/")
-            (expand-file-name "~/workspace/flygame/src/")
-            (expand-file-name "~/workspace/saf/")
-            (expand-file-name "~/workspace/vas_lib_proj/")
-            (expand-file-name "./")
-            (expand-file-name "../")
-            (expand-file-name "../../")
-            ))
 
 (require 'yasnippet)
 (add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
@@ -256,38 +231,38 @@
 (setq ecb-history-make-buckets 'never)
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
 
-
-;; swiper 查找文件时可以预览，可以通过c-n c-p进行前后查找，这样就不用c-r的反向查找功能了
-;; (global-set-key "\C-s" 'swiper)
-;; (global-set-key "\C-r" 'swiper)
-
 ;; ivy
-;; (ivy-mode 1)
+(ivy-mode 1)  ;; 查找文件，还是ivy补全方便
+;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+(setq ivy-use-virtual-buffers t)
 
 ;; helm
 (helm-mode 1)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)
+(require 'helm-config)
+;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
 (define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
 (global-set-key (kbd "M-x") 'helm-M-x)  ;; 它比ivy的方便些，有历史记录
 
-;;; Enable helm-gtags-mode
+;; helm-gtags
 (setenv "GTAGSFORCECPP" "1")
 (add-hook 'c-mode-hook 'helm-gtags-mode)
 (add-hook 'c++-mode-hook 'helm-gtags-mode)
 (add-hook 'asm-mode-hook 'helm-gtags-mode)
-
-;; customize
-(custom-set-variables
- '(helm-gtags-path-style 'relative)
- '(helm-gtags-ignore-case t)
- '(helm-gtags-auto-update t))
-
-;; key bindings
+(add-hook 'jce-mode-hook 'helm-gtags-mode)
 (with-eval-after-load 'helm-gtags
   (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
   (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-find-tag-from-here)
   (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
   (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack))
+
+;; helm swoop https://github.com/steckerhalter/helm-swoop fix branch
+(require 'helm-swoop)
+(global-set-key (kbd "M-i") 'helm-swoop)
+(define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
+(define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
+(define-key helm-multi-swoop-map (kbd "C-r") 'helm-previous-line)
+(define-key helm-multi-swoop-map (kbd "C-s") 'helm-next-line)
+
 
 
 (projectile-global-mode)
@@ -342,14 +317,12 @@
 (global-set-key (kbd "C-c w") 'edit-at-point-word-copy)
 
 
-
 ;;(setq gdb-many-windows t)
 
 ;; 编译远程文件
 (setq tramp-default-method "ssh")
 (setq tramp-default-user "root")
-;;(setq tramp-default-method "rsync")
-;;(setq tramp-default-user "root")
+
 
 ;; copy buffer path
 (defun copy-buffer-file-name-as-kill(choice)
@@ -373,35 +346,6 @@
     )
 )
 
-;; wordpress
-(setq org2blog/wp-blog-alist
-      '(("sailsxu"
-         :url "http://www.sailsxu.com/xmlrpc.php"
-         :username "sailsxu"
-         :default-categories ("c++")
-         :keep-new-lines t
-         :confirm t
-         :wp-code nil
-         :tags-as-categories nil)
-	("clisp"
-	 :url "http://www.clisp.net/xmlrpc.php"
-         :username "sailsxu"
-         :default-categories ("c++")
-         :keep-new-lines t
-         :confirm t
-         :wp-code nil
-         :tags-as-categories nil)
-        ))
-
-
-;; (add-hook 'LaTeX-mode-hook (lambda()
-;;                              (add-to-list 'TeX-command-list '("XeLaTeX" "xelatex %(mode) %t" TeX-run-TeX nil  (latex-mode) ))
-;; 			     (setq TeX-command-default "XeLaTeX")
-;; 			     (setq TeX-save-query  nil )
-;; 			     (setq TeX-show-compilation t)
-;; 			     (setq TeX-PDF-mode t)
-;; 			     ))
-
 ;; //////////// Other ///////////////
 
 
@@ -415,20 +359,19 @@
 
 
 
+
+;; customize
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(flymake-google-cpplint-filter
-   "--filter=-whitespace/braces,-build/include,-whitespace/line_length,-runtime/references,-whitespace/newline")
- '(flymake-google-cpplint-location (quote tempdir))
- '(flymake-google-cpplint-verbose "--verbose=0")
  '(package-selected-packages
    (quote
-    (company-lua lua-mode magit-svn company-c-headers psvn zenburn-theme yasnippet xcscope urlenc swiper sr-speedbar solarized-theme smex reveal-in-osx-finder quickrun projectile org2blog neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint flycheck-ycmd firestarter exec-path-from-shell edit-at-point ecb company-ycmd company-irony company-go bind-key autopair)))
+    (psvn helm-projectile yasnippet-snippets urlenc swiper sr-speedbar reveal-in-osx-finder projectile neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint flycheck firestarter exec-path-from-shell edit-at-point ecb company-go company-c-headers autopair all-the-icons-ivy)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")
      (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_lib_proj root@10.12.67.90::sailsxu")))))
+
 

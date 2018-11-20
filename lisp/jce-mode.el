@@ -125,8 +125,7 @@ Key bindings:
   ;; analysis and similar things working.
   (c-common-init 'jce-mode)
 ;  (easy-menu-add c:-menu)
-  (run-hooks 'c-mode-common-hook)
-  (run-hooks 'jce-mode-hook)
+  (c-run-mode-hooks 'c-mode-common-hook 'jce-mode-hook)
   (c-update-modeline))
 
 (provide 'jce-mode)

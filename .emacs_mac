@@ -7,7 +7,7 @@
 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-(setq url-proxy-services '(("http" . "dev-proxy.oa.com:8080")))
+;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/workspace/emacs/lisp")
 
@@ -39,6 +39,7 @@
     urlenc
     reveal-in-osx-finder
     helm-gtags
+    ggtags
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -79,7 +80,8 @@
 (set-frame-font "Menlo-12")
 ;;(set-fontset-font t 'han (font-spec :family "monaco" :size 12))
 ;;显示行号
-(global-linum-mode 1)
+;;(global-linum-mode 1)
+(global-display-line-numbers-mode 1)
 ;;显示列
 (column-number-mode 1)
 (scroll-bar-mode 0)
@@ -166,8 +168,6 @@
 
 (setq flycheck-clang-include-path
       (list (expand-file-name "~/workspace/")
-	    (expand-file-name "~/workspace/flygame/src/")
-	    (expand-file-name "~/workspace/saf/")
 	    (expand-file-name "~/workspace/vas_lib_proj/")
 	    (expand-file-name "./")
 	    (expand-file-name "../")
@@ -184,7 +184,7 @@
 	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
 	    ))
 
-(add-hook 'go-mode-hook 'flycheck-mode)
+;; (add-hook 'go-mode-hook 'flycheck-mode)
 
 
 ;; firestarter，用于设置每次保存时执行的命令
@@ -192,9 +192,17 @@
 
 ;; golang 设置
 ;; go语言自动补全,https://github.com/nsf/gocode，要去下载后端
-(add-hook 'before-save-hook 'gofmt-before-save)
+
 (defun my-go-mode-hook ()
-    (push 'company-go company-backends))
+  ; Use goimports instead of go-fmt
+  (setq gofmt-command "goimports")
+  ;; Call Gofmt before saving
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  ; Godef jump key binding
+  (local-set-key (kbd "M-.") 'godef-jump)
+  (local-set-key (kbd "M-,") 'pop-tag-mark)
+  
+  (push 'company-go company-backends))
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
 
@@ -244,6 +252,9 @@
 (global-set-key (kbd "M-x") 'helm-M-x)  ;; 它比ivy的方便些，有历史记录
 
 ;; helm-gtags
+(setq
+ ;; helm-gtags-auto-update t  ;; TAG file is updated after saving buffer
+ )
 (setenv "GTAGSFORCECPP" "1")
 (add-hook 'c-mode-hook 'helm-gtags-mode)
 (add-hook 'c++-mode-hook 'helm-gtags-mode)
@@ -254,6 +265,14 @@
   (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-find-tag-from-here)
   (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
   (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack))
+
+;; ggtags
+;; (setenv "GTAGSFORCECPP" "1")
+;; (add-hook 'c-mode-hook 'ggtags-mode)
+;; (add-hook 'c++-mode-hook 'ggtags-mode)
+;; (add-hook 'asm-mode-hook 'ggtags-mode)
+;; (add-hook 'jce-mode-hook 'ggtags-mode)
+
 
 ;; helm swoop https://github.com/steckerhalter/helm-swoop fix branch
 (require 'helm-swoop)
@@ -267,6 +286,7 @@
 
 (projectile-global-mode)
 (setq projectile-enable-caching t)
+(define-key projectile-mode-map  (kbd "C-c p f") 'projectile-find-file)
 ;; 默认它的find file是用外部的svn git命令来查找，但是如果有submodule时，所导致不多个project，而不是
 ;; 一个。如果设置native时，会直接遍历目录，所以会慢很多，基本上不能接受。所以还是用svn，git来查找，只是
 ;; 查找时，用c-c p F来，这样就是从已知的project中找查
@@ -346,6 +366,22 @@
     )
 )
 
+;; 大文件卡顿的问题
+(defun large-file-check-hook ()
+  "If a file is over a given size, make the buffer read only."
+  (when (> (buffer-size) (* 1024 100))
+    (flycheck-mode 0)
+    (company-mode 0)
+    (yas-minor-mode 0)
+    (helm-mode 0)
+    (autopair-mode 0)
+    )
+  (when (> (buffer-size) (* 1024 1024))
+    (fundamental-mode))
+  )
+
+(add-hook 'find-file-hook 'large-file-check-hook)
+
 ;; //////////// Other ///////////////
 
 
@@ -359,19 +395,20 @@
 
 
 
-
-;; customize
 (custom-set-variables
  ;; custom-set-variables was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(ansi-color-names-vector
+   ["#504545" "#ad8572" "#a9df90" "#aaca86" "#91a0b3" "#ab85a3" "#afcfef" "#bdbdb3"])
+ '(custom-safe-themes
+   (quote
+    ("bf798e9e8ff00d4bf2512597f36e5a135ce48e477ce88a0764cfb5d8104e8163" "c9ddf33b383e74dac7690255dd2c3dfa1961a8e8a1d20e401c6572febef61045" default)))
  '(package-selected-packages
    (quote
-    (psvn helm-projectile yasnippet-snippets urlenc swiper sr-speedbar reveal-in-osx-finder projectile neotree multi-term markdown-mode magit json-mode helm-gtags google-c-style ggtags flymake-google-cpplint flycheck firestarter exec-path-from-shell edit-at-point ecb company-go company-c-headers autopair all-the-icons-ivy)))
+    (lua-mode zenburn-theme yasnippet-snippets urlenc swiper sr-speedbar smex reveal-in-osx-finder psvn protobuf-mode neotree multi-term monokai-theme markdown-mode magit json-mode highlight2clipboard helm-projectile helm-gtags google-c-style ggtags flymake-google-cpplint flycheck firestarter exec-path-from-shell edit-at-point ecb darktooth-theme company-go company-c-headers autopair ample-theme all-the-icons-ivy ag)))
  '(safe-local-variable-values
    (quote
     ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_lib_proj root@10.12.67.90::sailsxu")))))
-
-
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git'  --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")))))

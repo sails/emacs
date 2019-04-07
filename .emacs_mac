@@ -71,7 +71,8 @@
   (setq ls-lisp-use-insert-directory-program nil)
   )
 
-
+;; windows 中文字体卡的问题
+(setq inhibit-compacting-font-caches t)
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，

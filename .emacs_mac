@@ -7,7 +7,7 @@
 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+;;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/workspace/emacs/lisp")
 
@@ -71,8 +71,7 @@
   (setq ls-lisp-use-insert-directory-program nil)
   )
 
-;; windows 中文字体卡的问题
-(setq inhibit-compacting-font-caches t)
+
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
 ;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
@@ -169,6 +168,7 @@
 
 (setq flycheck-clang-include-path
       (list (expand-file-name "~/workspace/")
+	    (expand-file-name "~/workspace/vas_lib_proj/")
 	    (expand-file-name "./")
 	    (expand-file-name "../")
 	    (expand-file-name "../../")
@@ -339,7 +339,9 @@
 
 ;; ///////////////programe setting ///////////////
 
-
+;; markdown
+(setq markdown-command
+      "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
 
 ;; //////////// Other ///////////////
 
@@ -375,7 +377,10 @@
       (kill-new new-kill-string)
       )
     )
-)
+  )
+
+;; windows 中文字体卡的问题
+;; (setq inhibit-compacting-font-caches t)
 
 ;; 大文件卡顿的问题
 (defun large-file-check-hook ()
@@ -394,16 +399,5 @@
 (add-hook 'find-file-hook 'large-file-check-hook)
 
 ;; //////////// Other ///////////////
-
-
-
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )
-
-
 
 

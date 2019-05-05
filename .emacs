@@ -7,7 +7,7 @@
 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-;;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
@@ -87,6 +87,8 @@
 (define-key global-map "\C-h" 'backward-delete-char)
 (define-key global-map "\C-x?" 'help-command)
 
+;; 终端模式下支持鼠标
+(xterm-mouse-mode 1)
 
 ;;以 y/n 替代 yes/no
 (fset 'yes-or-no-p 'y-or-n-p)
@@ -99,7 +101,9 @@
 (global-display-line-numbers-mode 1)
 ;;显示列
 (column-number-mode 1)
-(scroll-bar-mode 0)
+;;在终端环境下，没有scroll-bar，所以设置会出错
+(if (display-graphic-p) (scroll-bar-mode 0))
+
 (tool-bar-mode 0)
 ;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
 (global-set-key  [(M return)] 'toggle-frame-fullscreen)
@@ -239,23 +243,14 @@
 (setq speedbar-use-images nil)
 
 ;; ecb-mode
-(require 'ecb)
-;; 由于ecb在emacs25中c-x c-f 打开问题有bug，官方正在解决https://github.com/ecb-home/ecb/issues/10
-(defun display-buffer-at-bottom--display-buffer-at-bottom-around (orig-fun &rest args)
-  "Bugfix for ECB: cannot use display-buffer-at-bottom', calldisplay-buffer-use-some-window' instead in ECB frame."
-  (if (and ecb-minor-mode (equal (selected-frame) ecb-frame))
-      (apply 'display-buffer-use-some-window args)
-    (apply orig-fun args)))
-(advice-add 'display-buffer-at-bottom :around #'display-buffer-at-bottom--display-buffer-at-bottom-around)
-
 (setq ecb-tip-of-the-day nil)
-
 ;; 可以点击操作
 (setq ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
 ;; 自带的布局http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html
 (setq ecb-layout-name "left6")
 (setq ecb-history-make-buckets 'never)
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
+
 
 ;; ivy
 (ivy-mode 1)  ;; 查找文件，还是ivy补全方便
@@ -416,20 +411,3 @@
 (add-hook 'find-file-hook 'large-file-check-hook)
 
 ;; //////////// Other ///////////////
-
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(safe-local-variable-values
-   (quote
-    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

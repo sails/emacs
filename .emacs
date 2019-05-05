@@ -151,7 +151,7 @@
   )
 
 (require 'yasnippet)
-(add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
+(add-to-list 'yas-snippet-dirs "~/.emacs.d/snippets")
 (setq yas/prompt-functions '(yas/dropdown-prompt))
 (yas-global-mode 1)
 

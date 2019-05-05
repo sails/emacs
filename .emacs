@@ -40,6 +40,7 @@
     reveal-in-osx-finder
     helm-gtags
     ggtags
+    ag
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()

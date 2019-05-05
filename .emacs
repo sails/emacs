@@ -1,50 +1,108 @@
 (require 'package)
-(add-to-list 'package-archives
-             '("melpa" . "http://melpa.milkbox.net/packages/") t)
+;; 国内的镜像
+;;(add-to-list 'package-archives
+;;             '("melpa" . "https://melpa.org/packages/"))
+(setq package-archives '(
+			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")
+			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
+(package-initialize)
 
-;;********************** common ********************
-;;以 y/n 替代 yes/no
-(fset 'yes-or-no-p 'y-or-n-p)
-;;显示行号
-(global-linum-mode 1)
-(column-number-mode t)
-;;设置字体大小
-(set-frame-font "Ubuntu Mono-11")
-(set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
+;;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+
+(add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
+
+;; common lisp extensions一些额外的函数和宏
+(require 'cl)
+(eval-when-compile (require 'cl))
+
+;; 启动自动检查安装配置
+(defvar required-packages
+  '(
+    company
+    yasnippet
+    flycheck
+    projectile
+    magit
+    autopair
+    ecb
+    company-go
+    markdown-mode
+    json-mode
+    sr-speedbar
+    exec-path-from-shell
+    google-c-style
+    flymake-google-cpplint
+    firestarter
+    helm
+    ivy
+    edit-at-point
+    urlenc
+    reveal-in-osx-finder
+    helm-gtags
+    ggtags
+  ) "a list of packages to ensure are installed at launch.")
+
+(defun packages-installed-p ()
+  (loop for p in required-packages
+        when (not (package-installed-p p)) do (return nil)
+        finally (return t)))
+;; 依次查检进行安装
+(unless (packages-installed-p)
+  (message "%s" "Emacs is now refreshing its package database...")
+  (package-refresh-contents)
+  (message "%s" " done.")
+  ; install the missing packages
+  (dolist (p required-packages)
+    (when (not (package-installed-p p))
+      (package-install p))))
 
 
-(defun my-c-style-set()
-;;  (c-set-style "K&R")
-;;  (c-set-offset 'innamespace 0)
-;;  (setq c-basic-offset 4)
-  ;;tab用空格代替
-  (setq-default indent-tabs-mode nil)
-  ;; cscope 查找代码很方便,先通过cscope-indexer -r来生成索引
-  (cscope-minor-mode 1)
-  (semantic-mode 1)
-  ;; flycheck
-  (setq flycheck-clang-language-standard "c++11")
-  (setq flycheck-clang-include-path
-                           (list (expand-file-name "~/workspace/"
-                                                   )))
-  
-  (projectile-mode 1)
+
+;; ////////////////common setting/////////////////
+;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
+;; emacs-mac-port 已经把meta改过了
+(when (eq system-type 'darwin) ;; mac specific settings
+  (message "remap key")
+  (setq mac-option-modifier 'alt)
+  (setq mac-command-modifier 'meta)
+  (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
+  ;; 由于ls与linux中的不同，有些插件可能会报错
+  (require 'ls-lisp)
+  (setq ls-lisp-use-insert-directory-program nil)
+  (set-frame-font "Menlo-12")
   )
 
-;; google c++ style 检查
-(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
-(add-hook 'c-mode-common-hook 'my-c-style-set)
-(add-hook 'c-mode-common-hook 'google-set-c-style)
-(add-hook 'c-mode-common-hook 'google-make-newline-indent)
-;; flycheck 会让emacs变慢,默认不开
-;; (add-hook 'c-mode-common-hook 'flycheck-mode)
+(when (eq system-type 'windows-nt)
+  ;; 解决中文卡的问题
+  (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
+  ;; 改变默认路径
+  (setq inhibit-startup-message t)
+  (cd "E:/")
+  (setenv "HOME" "D:/program/emacs")
+  (setenv "PATH" "D:/program/emacs/bin") 
+
+  )
+
+;; ssh连接linux时，删除键重新映射
+(define-key global-map "\C-h" 'backward-delete-char)
+(define-key global-map "\C-x?" 'help-command)
 
 
-(add-hook 'c-mode-hook 'hs-minor-mode)
-(add-hook 'c++-mode-hook 'hs-minor-mode)
-(global-set-key (kbd "C-=") 'hs-show-block)
-(global-set-key (kbd "C--") 'hs-hide-block)
-
+;;以 y/n 替代 yes/no
+(fset 'yes-or-no-p 'y-or-n-p)
+;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
+;; 当在c-x c-f打开文件时，M-p可以查看填入最近打开的文件，M-n可以恢复正常
+(recentf-mode t)
+;;(set-fontset-font t 'han (font-spec :family "monaco" :size 12))
+;;显示行号
+;;(global-linum-mode 1)
+(global-display-line-numbers-mode 1)
+;;显示列
+(column-number-mode 1)
+(scroll-bar-mode 0)
+(tool-bar-mode 0)
+;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
+(global-set-key  [(M return)] 'toggle-frame-fullscreen)
 
 ;; 窗口间方便跳转
 (global-set-key [M-left] 'windmove-left)
@@ -52,123 +110,231 @@
 (global-set-key [M-up] 'windmove-up)
 (global-set-key [M-down] 'windmove-down)
 
-;;全屏
-(defun my-fullscreen ()
-  (interactive)
-      (x-send-client-message
-             nil 0 nil "_NET_WM_STATE" 32
-                       '(2 "_NET_WM_STATE_FULLSCREEN" 0)))
-(global-set-key [f11] 'my-fullscreen);F11 全屏
+;; 这个插件很厉害，可以得到环境变量的值, 它会自动复制MANPATH, PATH and exec-path，
+;; 其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize))
+(exec-path-from-shell-copy-env "GOPATH")
 
-;;********************** common *********************
+;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
+(require 'reveal-in-osx-finder)
 
-;; config file for yasnippet
-(eval-after-load 'yasnippet-autoloads
-  '(progn
+;; 大小写M-u,M-l
+(put 'upcase-region 'disabled nil)
 
-     (require 'yasnippet)
-     (setq yas/prompt-functions '(yas/dropdown-prompt))
-     (yas-global-mode 1)
-
-   )
-)
-
-(eval-after-load 'auto-complete-autoloads
-  '(progn
+;; ////////////////common setting/////////////////
 
 
-     ;;common auto-complete
-     (require 'auto-complete-config)
-     (defun ac-config-default ()
-       (setq-default ac-sources '(ac-source-yasnippet ac-source-semantic ac-source-files-in-current-dir ac-source-abbrev ac-source-dictionary ac-source-words-in-same-mode-buffers))
-       (add-hook 'emacs-lisp-mode-hook 'ac-emacs-lisp-mode-setup)
-       (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-       (add-hook 'ruby-mode-hook 'ac-ruby-mode-setup)
-       (add-hook 'css-mode-hook 'ac-css-mode-setup)
-       (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-       )
 
-     (ac-config-default)
-     (setq ac-use-menu-map t)
-     (global-set-key "\M-/" 'auto-complete)
+;; ///////////////programe setting ///////////////
 
-     ;;clang
-     (require 'auto-complete-clang-async)
-     (defun ac-cc-mode-setup ()
-       (setq ac-clang-complete-executable "~/software/clang-autocomplete-server/clang-complete")
-       (setq ac-sources '(ac-source-clang-async))
-       (ac-clang-launch-completion-process)
-       (add-to-list 'ac-clang-cflags "-I/home/sails/workspace")
-       )
-     (defun my-ac-config ()
-       (add-hook 'c-mode-common-hook 'ac-cc-mode-setup)
-       (add-hook 'auto-complete-mode-hook 'ac-common-setup)
-       (global-auto-complete-mode t)
-       )
+(require 'init-jce)
 
-     (my-ac-config)
+(add-hook 'after-init-hook 'global-company-mode)
+;; any-company mode 默认是M-n M-p用于选择，但是习惯
+(with-eval-after-load 'company
+  (define-key company-active-map (kbd "M-n") nil)
+  (define-key company-active-map (kbd "M-p") nil)
+  (define-key company-active-map (kbd "C-n") #'company-select-next)
+  (define-key company-active-map (kbd "C-p") #'company-select-previous)
+  (setq company-idle-delay 0)
 
-     )
-)
-
-;; autopair mode
-(eval-after-load 'autopair-autoloads
-  '(progn
-     (autopair-global-mode)
-     )
-)
-
-;; power line
-(eval-after-load 'powerline-autoloads
-  '(progn
-
-    )
-)
-
-;; sr-speedbar
-(eval-after-load 'sr-speedbar-autoloads
-  '(progn
-     (require 'sr-speedbar)
-    )
-)
-
-;; ecb-mode
-(eval-after-load 'ecb-autoloads
-  '(progn
-     (setq ecb-tip-of-the-day nil)
-     ;;设置可用鼠标点击
-     (custom-set-variables
-      '(ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1)))
-     )
+  ;; company-yasnippet会造成在以.开始的补全中，出现很多无用的运算符号
+  (add-to-list
+   'company-backends '(company-gtags))
+  (setq company-idle-delay 0.15)
+  
+  ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
+  (setq company-backends (delete 'company-semantic company-backends))
   )
 
-;; flycheck, 其中cppcheck默认就会调用cpplint
-(eval-after-load 'flycheck
-  '(progn
-     (require 'flycheck-google-cpplint)
-     ;; Add Google C++ Style checker.
-     ;; In default, syntax checked by Clang and Cppcheck.
-     (flycheck-add-next-checker 'c/c++-cppcheck
-				'(warning . c/c++-googlelint))))
+(require 'yasnippet)
+(add-to-list 'yas-snippet-dirs "~/workspace/emacs/snippets")
+(setq yas/prompt-functions '(yas/dropdown-prompt))
+(yas-global-mode 1)
+
+(add-to-list 'auto-mode-alist '("\\.h\\'" . c++-mode))
+
+;; 基于google style修改编程风格
+(c-add-style "Google" google-c-style)
+(c-add-style "mine" '("Google"
+                      (c-basic-offset . 4)
+                      (c-offsets-alist . ((innamespace . 0)
+                                          (access-label . -3)
+                                          (case-label . 0)
+                                          (member-init-intro . +)
+                                          (topmost-intro . 0)
+                                          ))))
+
+(defun my-c-common-hook()
+       (progn
+         (c-set-style "mine")
+         )
+       )
+
+(add-hook 'c-mode-common-hook 'my-c-common-hook)
+(add-hook 'c-mode-common-hook 'google-make-newline-indent)
+(setq default-tab-width 4)
+(setq-default indent-tabs-mode nil)
 
 
-;; org-mode
+;; 当开启semantic时，speedbar第一次展开一个文件的方法时会出错，这时只要重启关闭后再展示就正常了
+;; (add-hook 'c-mode-common-hook 'semantic-mode)
+
+(setq flycheck-clang-include-path
+      (list (expand-file-name "~/workspace/")
+	    (expand-file-name "~/workspace/vas_lib_proj/")
+	    (expand-file-name "./")
+	    (expand-file-name "../")
+	    (expand-file-name "../../")
+
+	    ))
+
+(add-hook 'c++-mode-hook
+	  (lambda ()
+            ;; flycheck 设置
+            (flycheck-mode 1)
+	    (setq flycheck-clang-language-standard "c++11")
+	    (flycheck-select-checker 'c/c++-cppcheck)
+	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
+	    ))
+
+;; (add-hook 'go-mode-hook 'flycheck-mode)
+
+
+;; firestarter，用于设置每次保存时执行的命令
+(firestarter-mode)
+
+;; golang 设置
+;; go语言自动补全,https://github.com/stamblerre/gocode，要去下载后端
+
+(defun my-go-mode-hook ()
+  ; Use goimports instead of go-fmt
+  (setq gofmt-command "goimports")
+  ;; Call Gofmt before saving
+  (add-hook 'before-save-hook 'gofmt-before-save)
+  ; Godef jump key binding
+  (local-set-key (kbd "M-.") 'godef-jump)
+  (local-set-key (kbd "M-,") 'pop-tag-mark)
+  
+  (push 'company-go company-backends))
+(add-hook 'go-mode-hook 'my-go-mode-hook)
+
+
+(add-hook 'c-mode-hook 'hs-minor-mode)
+(add-hook 'lua-mode-hook 'hs-minor-mode)
+(add-hook 'c++-mode-hook 'hs-minor-mode)
+(add-hook 'go-mode-hook 'hs-minor-mode)
+(global-set-key (kbd "C-=") 'hs-show-block)
+(global-set-key (kbd "C--") 'hs-hide-block)
+
+;; sr-speedbar
+(require 'sr-speedbar)
+(setq sr-speedbar-right-side nil)
+(speedbar-add-supported-extension ".go")
+(speedbar-add-supported-extension ".proto")
+(speedbar-add-supported-extension ".jce")
+(setq speedbar-use-images nil)
+
+;; ecb-mode
+(require 'ecb)
+;; 由于ecb在emacs25中c-x c-f 打开问题有bug，官方正在解决https://github.com/ecb-home/ecb/issues/10
+(defun display-buffer-at-bottom--display-buffer-at-bottom-around (orig-fun &rest args)
+  "Bugfix for ECB: cannot use display-buffer-at-bottom', calldisplay-buffer-use-some-window' instead in ECB frame."
+  (if (and ecb-minor-mode (equal (selected-frame) ecb-frame))
+      (apply 'display-buffer-use-some-window args)
+    (apply orig-fun args)))
+(advice-add 'display-buffer-at-bottom :around #'display-buffer-at-bottom--display-buffer-at-bottom-around)
+
+(setq ecb-tip-of-the-day nil)
+
+;; 可以点击操作
+(setq ecb-primary-secondary-mouse-buttons (quote mouse-1--C-mouse-1))
+;; 自带的布局http://ecb.sourceforge.net/docs/Changing-the-ECB-layout.html
+(setq ecb-layout-name "left6")
+(setq ecb-history-make-buckets 'never)
+(global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
+
+;; ivy
+(ivy-mode 1)  ;; 查找文件，还是ivy补全方便
+;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+(setq ivy-use-virtual-buffers t)
+
+;; helm
+(helm-mode 1)
+(require 'helm-config)
+;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
+(global-set-key (kbd "M-x") 'helm-M-x)  ;; 它比ivy的方便些，有历史记录
+
+;; helm-gtags
+(setq
+ ;; helm-gtags-auto-update t  ;; TAG file is updated after saving buffer
+ )
+(setenv "GTAGSFORCECPP" "1")
+(add-hook 'c-mode-hook 'helm-gtags-mode)
+(add-hook 'c++-mode-hook 'helm-gtags-mode)
+(add-hook 'asm-mode-hook 'helm-gtags-mode)
+(add-hook 'jce-mode-hook 'helm-gtags-mode)
+(with-eval-after-load 'helm-gtags
+  (define-key helm-gtags-mode-map (kbd "M-t") 'helm-gtags-find-tag)
+  (define-key helm-gtags-mode-map (kbd "M-.") 'helm-gtags-find-tag-from-here)
+  (define-key helm-gtags-mode-map (kbd "M-s") 'helm-gtags-find-symbol)
+  (define-key helm-gtags-mode-map (kbd "M-,") 'helm-gtags-pop-stack))
+
+;; ggtags
+;; (setenv "GTAGSFORCECPP" "1")
+;; (add-hook 'c-mode-hook 'ggtags-mode)
+;; (add-hook 'c++-mode-hook 'ggtags-mode)
+;; (add-hook 'asm-mode-hook 'ggtags-mode)
+;; (add-hook 'jce-mode-hook 'ggtags-mode)
+
+
+;; helm swoop https://github.com/steckerhalter/helm-swoop fix branch
+(require 'helm-swoop)
+(global-set-key (kbd "M-i") 'helm-swoop)
+(define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
+(define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
+(define-key helm-multi-swoop-map (kbd "C-r") 'helm-previous-line)
+(define-key helm-multi-swoop-map (kbd "C-s") 'helm-next-line)
+
+
+
+(projectile-global-mode)
+(setq projectile-enable-caching t)
+(define-key projectile-mode-map  (kbd "C-c p f") 'projectile-find-file)
+;; 默认它的find file是用外部的svn git命令来查找，但是如果有submodule时，所导致不多个project，而不是
+;; 一个。如果设置native时，会直接遍历目录，所以会慢很多，基本上不能接受。所以还是用svn，git来查找，只是
+;; 查找时，用c-c p F来，这样就是从已知的project中找查
+;; (setq projectile-indexing-method 'native)
+;; autopair mode
+(autopair-global-mode)
+
+;; 可以很方便的在头文件与cpp文件中切换
+(setq cc-other-file-alist
+      '(("\\.c"   (".h"))
+        ("\\.cpp"   (".h"))
+        ("\\.h"   (".c"".cpp"".cc"))))
+(setq ff-search-directories
+      '("." "../src" "../include"))
+(add-hook 'c-mode-common-hook
+          (lambda() 
+            (local-set-key  (kbd "C-c o") 'ff-find-other-file)))
+
 ;; org 自动换行
 (add-hook 'org-mode-hook 
 (lambda () (setq truncate-lines nil)))
-
-
 ;;org 代码高亮
 (setq org-src-fontify-natively t)
 (setq org-src-tab-acts-natively t)
+(setq org-image-actual-width '(300 500))
+;; 禁用下划线转义,org导出时下划线的问题abc_def中的def会变成小标
+(setq org-use-sub-superscripts nil)
+(setq org-export-with-sub-superscripts nil)
 
 
-;; comment
+;; 代码注释
 (defun qiang-comment-dwim-line (&optional arg)
-  "Replacement for the comment-dwim command.
-If no region is selected and current line is not blank and we are not at the end of the line,
-then comment current line.
-Replaces default behaviour of comment-dwim, when it inserts comment at the end of the line."
   (interactive "*P")
   (comment-normalize-vars)
   (if (and (not (region-active-p)) (not (looking-at "[ \t]*$")))
@@ -176,27 +342,78 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
     (comment-dwim arg)))
 (global-set-key "\M-;" 'qiang-comment-dwim-line)
 
+;; lua的缩进
+(setq lua-indent-level 4)
+(add-hook 'lua-mode-hook
+	  (lambda ()
+            ;; flycheck 设置
+            (flycheck-mode 1)
+            (when (executable-find "luacheck")
+              (flycheck-select-checker 'lua-luacheck))
+            ))
+
+;; ///////////////programe setting ///////////////
+
+;; markdown
+(setq markdown-command
+      "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
+
+;; //////////// Other ///////////////
+
+;; 复制，粘贴
+(global-set-key (kbd "C-c e") 'edit-at-point-symbol-copy)
+(global-set-key (kbd "C-c w") 'edit-at-point-word-copy)
 
 
-;; wordpress
-(setq org2blog/wp-blog-alist
-      '(("sailsxu"
-         :url "http://www.sailsxu.com/xmlrpc.php"
-         :username "sailsxu"
-         :default-categories ("c++")
-         :keep-new-lines t
-         :confirm t
-         :wp-code nil
-         :tags-as-categories nil)
-        ))
+;;(setq gdb-many-windows t)
 
-;; 第三方主题
-(defun load-customize-theme()
-  ;;(load-theme 'cherry-blossom)
-)
+;; 编译远程文件
+(setq tramp-default-method "ssh")
+(setq tramp-default-user "sails")
 
 
-(add-hook 'after-init-hook 'load-customize-theme)
+;; copy buffer path
+(defun copy-buffer-name(choice)
+  "Copy the buffer-file-name to the kill-ring"
+  (interactive "cCopy Buffer Name (f) full, (d) directory, (n) name")
+  (let ((new-kill-string)
+        (name (if (eq major-mode 'dired-mode)
+                  (dired-get-filename)
+                (or (buffer-file-name) ""))))
+    (cond ((eq choice ?f)
+           (setq new-kill-string name))
+          ((eq choice ?d)
+           (setq new-kill-string (file-name-directory name)))
+          ((eq choice ?n)
+           (setq new-kill-string (file-name-nondirectory name)))
+          (t (message "Quit")))
+    (when new-kill-string
+      (message "%s copied" new-kill-string)
+      (kill-new new-kill-string)
+      )
+    )
+  )
+
+;; windows 中文字体卡的问题
+;; (setq inhibit-compacting-font-caches t)
+
+;; 大文件卡顿的问题
+(defun large-file-check-hook ()
+  "If a file is over a given size, make the buffer read only."
+  (when (> (buffer-size) (* 1024 100))
+    (flycheck-mode 0)
+    (company-mode 0)
+    (yas-minor-mode 0)
+    (helm-mode 0)
+    (autopair-mode 0)
+    )
+  (when (> (buffer-size) (* 1024 1024))
+    (fundamental-mode))
+  )
+
+(add-hook 'find-file-hook 'large-file-check-hook)
+
+;; //////////// Other ///////////////
 
 
 (custom-set-variables
@@ -204,9 +421,10 @@ Replaces default behaviour of comment-dwim, when it inserts comment at the end o
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
- '(scroll-bar-mode nil)
- '(menu-bar-mode nil)
- '(tool-bar-mode nil))
+ '(safe-local-variable-values
+   (quote
+    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.

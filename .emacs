@@ -73,14 +73,14 @@
   )
 
 (when (eq system-type 'windows-nt)
-  ;; 解决中文卡的问题
+  ;; 解决windows 中文卡的问题
   (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
+  (setq inhibit-compacting-font-caches t)
   ;; 改变默认路径
   (setq inhibit-startup-message t)
   (cd "E:/")
   (setenv "HOME" "D:/program/emacs")
   (setenv "PATH" "D:/program/emacs/bin") 
-
   )
 
 ;; ssh连接linux时，删除键重新映射
@@ -390,9 +390,6 @@
       )
     )
   )
-
-;; windows 中文字体卡的问题
-;; (setq inhibit-compacting-font-caches t)
 
 ;; 大文件卡顿的问题
 (defun large-file-check-hook ()

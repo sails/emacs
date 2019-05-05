@@ -20,6 +20,7 @@
   '(
     company
     yasnippet
+    yasnippet-snippets
     flycheck
     projectile
     magit

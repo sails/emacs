@@ -113,8 +113,10 @@
 ;; 这个插件很厉害，可以得到环境变量的值, 它会自动复制MANPATH, PATH and exec-path，
 ;; 其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
 (when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize))
-(exec-path-from-shell-copy-env "GOPATH")
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "GOPATH")
+  )
+
 
 ;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
 (require 'reveal-in-osx-finder)
@@ -356,7 +358,7 @@
 
 ;; markdown
 (setq markdown-command
-      "/usr/local/bin/pandoc -c ~/workspace/emacs/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
+      "/usr/local/bin/pandoc -c ~/.emacs.d/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
 
 ;; //////////// Other ///////////////
 

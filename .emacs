@@ -1,13 +1,13 @@
 (require 'package)
 ;; 国内的镜像
 ;;(add-to-list 'package-archives
-;;             '("melpa" . "https://melpa.org/packages/"))
-(setq package-archives '(
-			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")
-			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
+;;            '("melpa" . "https://melpa.org/packages/"))
+ (setq package-archives '(
+ 			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")
+ 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-;;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+;; (setq url-proxy-services '(("http" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
@@ -35,7 +35,6 @@
     flymake-google-cpplint
     firestarter
     helm
-    ivy
     edit-at-point
     urlenc
     reveal-in-osx-finder
@@ -75,14 +74,14 @@
   )
 
 (when (eq system-type 'windows-nt)
-  ;; 解决windows 中文卡的问题
+  ;; 解决windows中文卡的问题
   (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
-  (setq inhibit-compacting-font-caches t)
   ;; 改变默认路径
   (setq inhibit-startup-message t)
   (cd "E:/")
   (setenv "HOME" "D:/program/emacs")
   (setenv "PATH" "D:/program/emacs/bin") 
+
   )
 
 ;; ssh连接linux时，删除键重新映射
@@ -254,17 +253,14 @@
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
 
 
-;; ivy
-(ivy-mode 1)  ;; 查找文件，还是ivy补全方便
-;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
-(setq ivy-use-virtual-buffers t)
-
 ;; helm
 (helm-mode 1)
 (require 'helm-config)
-;; (global-set-key (kbd "C-x C-f") 'helm-find-files)
+(global-set-key (kbd "C-x C-f") 'helm-find-files)  ;; 比ivy更好用，ivy在同一个目录相同文件前缀时会补全问题
 (define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
 (global-set-key (kbd "M-x") 'helm-M-x)  ;; 它比ivy的方便些，有历史记录
+(global-set-key (kbd "C-x b") 'helm-mini)
+
 
 ;; helm-gtags
 (setq
@@ -287,17 +283,6 @@
 ;; (add-hook 'c++-mode-hook 'ggtags-mode)
 ;; (add-hook 'asm-mode-hook 'ggtags-mode)
 ;; (add-hook 'jce-mode-hook 'ggtags-mode)
-
-
-;; helm swoop https://github.com/steckerhalter/helm-swoop fix branch
-(require 'helm-swoop)
-(global-set-key (kbd "M-i") 'helm-swoop)
-(define-key helm-swoop-map (kbd "C-r") 'helm-previous-line)
-(define-key helm-swoop-map (kbd "C-s") 'helm-next-line)
-(define-key helm-multi-swoop-map (kbd "C-r") 'helm-previous-line)
-(define-key helm-multi-swoop-map (kbd "C-s") 'helm-next-line)
-
-
 
 (projectile-global-mode)
 (setq projectile-enable-caching t)
@@ -392,6 +377,9 @@
       )
     )
   )
+
+;; windows 中文字体卡的问题
+;; (setq inhibit-compacting-font-caches t)
 
 ;; 大文件卡顿的问题
 (defun large-file-check-hook ()

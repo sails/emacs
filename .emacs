@@ -1,3 +1,16 @@
+(when (eq system-type 'windows-nt)
+  ;; 解决windows中文卡的问题
+  (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
+  ;; 改变默认路径
+  ;; (load-file "D:/program/emacs/.emacs")
+  (setq inhibit-startup-message t)
+  (cd "E:/")
+  (setenv "HOME" "D:/program/emacs")
+  (setenv "PATH" "D:/program/emacs/bin") 
+
+  )
+
+
 (require 'package)
 ;; 国内的镜像
 ;;(add-to-list 'package-archives
@@ -73,17 +86,6 @@
   (require 'ls-lisp)
   (setq ls-lisp-use-insert-directory-program nil)
   (set-frame-font "Menlo-12")
-  )
-
-(when (eq system-type 'windows-nt)
-  ;; 解决windows中文卡的问题
-  (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
-  ;; 改变默认路径
-  (setq inhibit-startup-message t)
-  (cd "E:/")
-  (setenv "HOME" "D:/program/emacs")
-  (setenv "PATH" "D:/program/emacs/bin") 
-
   )
 
 ;; ssh连接linux时，删除键重新映射

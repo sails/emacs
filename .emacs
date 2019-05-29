@@ -41,6 +41,8 @@
     helm-gtags
     ggtags
     ag
+    quickrun
+    ivy
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -232,8 +234,17 @@
 (add-hook 'lua-mode-hook 'hs-minor-mode)
 (add-hook 'c++-mode-hook 'hs-minor-mode)
 (add-hook 'go-mode-hook 'hs-minor-mode)
-(global-set-key (kbd "C-=") 'hs-show-block)
-(global-set-key (kbd "C--") 'hs-hide-block)
+(if (display-graphic-p)
+    (progn
+      ;; if graphic
+      (global-set-key (kbd "C-=") 'hs-show-block)
+      (global-set-key (kbd "C--") 'hs-hide-block)
+      )
+  ;; else (optional)
+  (global-set-key (kbd "C-c =") 'hs-show-block)
+  (global-set-key (kbd "C-c -") 'hs-hide-block)
+  )
+
 
 ;; sr-speedbar
 (require 'sr-speedbar)
@@ -253,14 +264,26 @@
 (global-set-key (kbd "C-c C-e") 'ecb-minor-mode)
 
 
-;; helm
+;; ;; helm
 (helm-mode 1)
 (require 'helm-config)
-(global-set-key (kbd "C-x C-f") 'helm-find-files)  ;; 比ivy更好用，ivy在同一个目录相同文件前缀时会补全问题
+(global-set-key (kbd "C-x C-f") 'helm-find-files)
 (define-key helm-find-files-map "\t" 'helm-execute-persistent-action)
 (global-set-key (kbd "M-x") 'helm-M-x)  ;; 它比ivy的方便些，有历史记录
 (global-set-key (kbd "C-x b") 'helm-mini)
 
+;; ivy
+;; (ivy-mode 1)  ;; 查找文件，还是ivy补全方便
+;; ;; add ‘recentf-mode’ and bookmarks to ‘ivy-switch-buffer’.
+;; (setq ivy-use-virtual-buffers t)
+;; ;; 改变高度成1/3
+;; (setq ivy-height-alist
+;;       '((t
+;;          lambda (_caller)
+;;          (/ (frame-height) 3))))
+;; ;; 默认情况下如果目录下有test.cpp，想创建test.c是不行的，由于在输入test.c时，会默认补全
+;; ;; 并选中test.cpp，打开ivy-use-selectable-prompt后，可以C-p把补全的选中框移动到输入上
+;; (setq ivy-use-selectable-prompt t) 
 
 ;; helm-gtags
 (setq
@@ -304,6 +327,14 @@
 (add-hook 'c-mode-common-hook
           (lambda() 
             (local-set-key  (kbd "C-c o") 'ff-find-other-file)))
+
+;; quickrun
+(quickrun-add-command "c++/c11"
+                      '((:command . "g++")
+                        (:exec    . ("%c -std=c++11 %o -o %n %s"
+                                     "%n %a"))
+                        (:remove  . ("%n")))
+                      :default "c++")
 
 ;; org 自动换行
 (add-hook 'org-mode-hook 
@@ -357,7 +388,7 @@
 
 
 ;; copy buffer path
-(defun copy-buffer-name(choice)
+(defun copy-file-name(choice)
   "Copy the buffer-file-name to the kill-ring"
   (interactive "cCopy Buffer Name (f) full, (d) directory, (n) name")
   (let ((new-kill-string)
@@ -391,7 +422,7 @@
     (helm-mode 0)
     (autopair-mode 0)
     )
-  (when (> (buffer-size) (* 1024 1024))
+  (when (> (buffer-size) (* 1024 200))
     (fundamental-mode))
   )
 

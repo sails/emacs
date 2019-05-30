@@ -1,16 +1,3 @@
-(when (eq system-type 'windows-nt)
-  ;; 解决windows中文卡的问题
-  (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
-  ;; 改变默认路径
-  ;; (load-file "D:/program/emacs/.emacs")
-  (setq inhibit-startup-message t)
-  (cd "E:/")
-  (setenv "HOME" "D:/program/emacs")
-  (setenv "PATH" "D:/program/emacs/bin") 
-
-  )
-
-
 (require 'package)
 ;; 国内的镜像
 ;;(add-to-list 'package-archives
@@ -24,9 +11,24 @@
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
+;; windows 设置
+(defun windows-custom_setting ()
+  (when (eq system-type 'windows-nt)
+    ;; 解决windows中文卡的问题
+    (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
+    ;; 改变默认路径
+    (setq inhibit-startup-message t)
+    (cd "E:/")
+    (setenv "HOME" "D:/program/emacs")
+    (setenv "PATH" "D:/program/emacs/bin") 
+    )
+  )
+(windows-custom_setting)
+
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
 (eval-when-compile (require 'cl))
+
 
 ;; 启动自动检查安装配置
 (defvar required-packages
@@ -87,6 +89,9 @@
   (setq ls-lisp-use-insert-directory-program nil)
   (set-frame-font "Menlo-12")
   )
+
+
+
 
 ;; ssh连接linux时，删除键重新映射
 (define-key global-map "\C-h" 'backward-delete-char)
@@ -431,3 +436,25 @@
 (add-hook 'find-file-hook 'large-file-check-hook)
 
 ;; //////////// Other ///////////////
+
+
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   (quote
+    (counsel quickrun treemacs helm-swoop helm-tramp lua-mode flymake-lua yasnippet-snippets ag neotree ggtags helm-gtags reveal-in-osx-finder urlenc edit-at-point ivy helm firestarter flymake-google-cpplint google-c-style exec-path-from-shell sr-speedbar json-mode markdown-mode company-go ecb autopair magit projectile flycheck yasnippet company)))
+ '(safe-local-variable-values
+   (quote
+    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='.*' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/master root@10.12.67.90::sailsxu")
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='.*' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")
+     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")))))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )

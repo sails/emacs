@@ -58,6 +58,7 @@
     ag
     quickrun
     ivy
+    expand-region
   ) "a list of packages to ensure are installed at launch.")
 
 (defun packages-installed-p ()
@@ -138,6 +139,11 @@
 ;; 大小写M-u,M-l
 (put 'upcase-region 'disabled nil)
 
+;; 高效的选中region
+(require 'expand-region)
+(global-set-key (kbd "C-x m") 'er/expand-region)
+
+
 ;; ////////////////common setting/////////////////
 
 
@@ -145,6 +151,7 @@
 ;; ///////////////programe setting ///////////////
 
 (require 'init-jce)
+
 
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
@@ -437,24 +444,3 @@
 
 ;; //////////// Other ///////////////
 
-
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   (quote
-    (counsel quickrun treemacs helm-swoop helm-tramp lua-mode flymake-lua yasnippet-snippets ag neotree ggtags helm-gtags reveal-in-osx-finder urlenc edit-at-point ivy helm firestarter flymake-google-cpplint google-c-style exec-path-from-shell sr-speedbar json-mode markdown-mode company-go ecb autopair magit projectile flycheck yasnippet company)))
- '(safe-local-variable-values
-   (quote
-    ((firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='.*' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/master root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='.*' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.git' --exclude='.dir-locals.el' --exclude='#*' --exclude='*~' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/vas_pgg_proj root@10.12.67.90::sailsxu")
-     (firestarter . "rsync -avzP --password-file=/Users/sailsxu/Applications/password/rsync.password --timeout=2 --exclude='.svn' --exclude='GPATH' --exclude='GRTAGS' --exclude='GTAGS'  /Users/sailsxu/workspace/dev_team_two_proj root@10.12.67.90::sailsxu")))))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

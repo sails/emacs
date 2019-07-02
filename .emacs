@@ -7,27 +7,87 @@
  			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-;; (setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+;;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
-;; windows 设置
-(defun windows-custom_setting ()
-  (when (eq system-type 'windows-nt)
-    ;; 解决windows中文卡的问题
-    (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
-    ;; 改变默认路径
-    (setq inhibit-startup-message t)
-    (cd "E:/")
-    (setenv "HOME" "D:/program/emacs")
-    (setenv "PATH" "D:/program/emacs/bin") 
-    )
-  )
-(windows-custom_setting)
 
+;; ////////////////common setting/////////////////
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
 (eval-when-compile (require 'cl))
+
+;; windows 设置
+(when (eq system-type 'windows-nt)
+  ;; 解决windows中文卡的问题
+  (set-fontset-font t 'han (font-spec :family "新宋体" :size 12))
+  ;; 改变默认路径
+  (setq inhibit-startup-message t)
+  (cd "E:/")
+  (setenv "HOME" "D:/program/emacs")
+  (setenv "PATH" "D:/program/emacs/bin") 
+  )
+
+;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
+;; emacs-mac-port 已经把meta改过了
+(when (eq system-type 'darwin) ;; mac specific settings
+  (message "remap key")
+  (setq mac-option-modifier 'alt)
+  (setq mac-command-modifier 'meta)
+  (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
+  ;; 由于ls与linux中的不同，有些插件可能会报错
+  (require 'ls-lisp)
+  (setq ls-lisp-use-insert-directory-program nil)
+  (set-frame-font "Menlo-12")
+
+  (setq default-frame-alist
+      `((top . 0)
+        (left . 300)   ;; 单位是像素
+        (width . 100)  ;; 单位frame-char-width
+        (height . 40)  ;; 单位frame-char-height
+        ))
+  (message "height:%d" (x-display-pixel-height))
+  (message "width:%d" (x-display-pixel-width))
+  )
+
+;; ssh连接linux时，删除键重新映射
+(define-key global-map "\C-h" 'backward-delete-char)
+(define-key global-map "\C-x?" 'help-command)
+
+;; 终端模式下支持鼠标
+(xterm-mouse-mode 1)
+
+;;以 y/n 替代 yes/no
+(fset 'yes-or-no-p 'y-or-n-p)
+;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
+;; 当在c-x c-f打开文件时，M-p可以查看填入最近打开的文件，M-n可以恢复正常
+(recentf-mode t)
+;;(set-fontset-font t 'han (font-spec :family "monaco" :size 12))
+;;显示行号
+;;(global-linum-mode 1)
+(global-display-line-numbers-mode 1)
+;;显示列
+(column-number-mode 1)
+;;在终端环境下，没有scroll-bar，所以设置会出错
+(if (display-graphic-p) (scroll-bar-mode 0))
+
+(tool-bar-mode 0)
+;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
+(global-set-key  [(M return)] 'toggle-frame-fullscreen)
+
+;; 窗口间方便跳转
+(global-set-key [M-left] 'windmove-left)
+(global-set-key [M-right] 'windmove-right)
+(global-set-key [M-up] 'windmove-up)
+(global-set-key [M-down] 'windmove-down)
+
+;; 大小写M-u,M-l
+(put 'upcase-region 'disabled nil)
+
+;; ////////////////common setting/////////////////
+
+
+
 
 
 ;; 启动自动检查安装配置
@@ -74,78 +134,6 @@
   (dolist (p required-packages)
     (when (not (package-installed-p p))
       (package-install p))))
-
-
-
-;; ////////////////common setting/////////////////
-;; key bindings,把meta映射成cmd键，但是不影响cmd+tab这样的系统快捷方式
-;; emacs-mac-port 已经把meta改过了
-(when (eq system-type 'darwin) ;; mac specific settings
-  (message "remap key")
-  (setq mac-option-modifier 'alt)
-  (setq mac-command-modifier 'meta)
-  (global-set-key [kp-delete] 'delete-char) ;; sets fn-delete to be right-delete
-  ;; 由于ls与linux中的不同，有些插件可能会报错
-  (require 'ls-lisp)
-  (setq ls-lisp-use-insert-directory-program nil)
-  (set-frame-font "Menlo-12")
-  )
-
-
-
-
-;; ssh连接linux时，删除键重新映射
-(define-key global-map "\C-h" 'backward-delete-char)
-(define-key global-map "\C-x?" 'help-command)
-
-;; 终端模式下支持鼠标
-(xterm-mouse-mode 1)
-
-;;以 y/n 替代 yes/no
-(fset 'yes-or-no-p 'y-or-n-p)
-;; recent file，最近打开的文件，在menu上会出现一个最近打开的文件列表，
-;; 当在c-x c-f打开文件时，M-p可以查看填入最近打开的文件，M-n可以恢复正常
-(recentf-mode t)
-;;(set-fontset-font t 'han (font-spec :family "monaco" :size 12))
-;;显示行号
-;;(global-linum-mode 1)
-(global-display-line-numbers-mode 1)
-;;显示列
-(column-number-mode 1)
-;;在终端环境下，没有scroll-bar，所以设置会出错
-(if (display-graphic-p) (scroll-bar-mode 0))
-
-(tool-bar-mode 0)
-;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
-(global-set-key  [(M return)] 'toggle-frame-fullscreen)
-
-;; 窗口间方便跳转
-(global-set-key [M-left] 'windmove-left)
-(global-set-key [M-right] 'windmove-right)
-(global-set-key [M-up] 'windmove-up)
-(global-set-key [M-down] 'windmove-down)
-
-;; 这个插件很厉害，可以得到环境变量的值, 它会自动复制MANPATH, PATH and exec-path，
-;; 其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
-(when (memq window-system '(mac ns))
-  (exec-path-from-shell-initialize)
-  (exec-path-from-shell-copy-env "GOPATH")
-  )
-
-
-;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
-(require 'reveal-in-osx-finder)
-
-;; 大小写M-u,M-l
-(put 'upcase-region 'disabled nil)
-
-;; 高效的选中region
-(require 'expand-region)
-(global-set-key (kbd "C-x m") 'er/expand-region)
-
-
-;; ////////////////common setting/////////////////
-
 
 
 ;; ///////////////programe setting ///////////////
@@ -383,11 +371,25 @@
 
 ;; ///////////////programe setting ///////////////
 
-;; markdown
-(setq markdown-command
-      "/usr/local/bin/pandoc -c ~/.emacs.d/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
+
 
 ;; //////////// Other ///////////////
+
+;; 这个插件很厉害，可以得到环境变量的值, 它会自动复制MANPATH, PATH and exec-path，
+;; 其它的要通过(exec-path-from-shell-copy-env "GOPATH")的方式来设置
+(when (memq window-system '(mac ns))
+  (exec-path-from-shell-initialize)
+  (exec-path-from-shell-copy-env "GOPATH")
+  )
+
+
+;; 调用reveal-in-osx-finder在finder中打开当前目录，并选中当前文件
+(require 'reveal-in-osx-finder)
+
+
+;; 高效的选中region
+(require 'expand-region)
+(global-set-key (kbd "C-x m") 'er/expand-region)
 
 ;; 复制，粘贴
 (global-set-key (kbd "C-c e") 'edit-at-point-symbol-copy)
@@ -436,11 +438,15 @@
     (helm-mode 0)
     (autopair-mode 0)
     )
-  (when (> (buffer-size) (* 1024 200))
+  (when (> (buffer-size) (* 1024 1024))
     (fundamental-mode))
   )
 
 (add-hook 'find-file-hook 'large-file-check-hook)
+
+;; markdown
+(setq markdown-command
+      "/usr/local/bin/pandoc -c ~/.emacs.d/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
 
 ;; //////////// Other ///////////////
 

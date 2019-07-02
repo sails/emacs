@@ -46,8 +46,8 @@
         (width . 100)  ;; 单位frame-char-width
         (height . 40)  ;; 单位frame-char-height
         ))
-  (message "height:%d" (x-display-pixel-height))
-  (message "width:%d" (x-display-pixel-width))
+  ;; (message "height:%d" (x-display-pixel-height))
+  ;; (message "width:%d" (x-display-pixel-width))
   )
 
 ;; ssh连接linux时，删除键重新映射

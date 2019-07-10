@@ -221,8 +221,6 @@
 
 ;; golang 设置
 (add-hook 'go-mode-hook #'lsp)
-;; go语言自动补全,https://github.com/stamblerre/gocode，要去下载后端
-
 (defun my-go-mode-hook ()
   ; Use goimports instead of go-fmt
   (setq gofmt-command "goimports")
@@ -231,6 +229,7 @@
   ; Godef jump key binding
   (local-set-key (kbd "M-.") 'godef-jump)
   (local-set-key (kbd "M-,") 'pop-tag-mark)
+  (setq lsp-prefer-flymake nil)
   )
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 

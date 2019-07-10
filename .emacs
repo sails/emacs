@@ -7,7 +7,7 @@
  			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
 (package-initialize)
 
-;;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
@@ -101,6 +101,7 @@
     magit
     autopair
     ecb
+    company-lsp
     company-go
     markdown-mode
     json-mode
@@ -139,8 +140,6 @@
 ;; ///////////////programe setting ///////////////
 
 (require 'init-jce)
-
-
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
@@ -157,6 +156,9 @@
   
   ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
   (setq company-backends (delete 'company-semantic company-backends))
+
+  (push 'company-lsp company-backends)
+  
   )
 
 (require 'yasnippet)
@@ -217,6 +219,7 @@
 (firestarter-mode)
 
 ;; golang 设置
+(add-hook 'go-mode-hook #'lsp)
 ;; go语言自动补全,https://github.com/stamblerre/gocode，要去下载后端
 
 (defun my-go-mode-hook ()
@@ -227,7 +230,7 @@
   ; Godef jump key binding
   (local-set-key (kbd "M-.") 'godef-jump)
   (local-set-key (kbd "M-,") 'pop-tag-mark)
-  
+  ;; company-go使用gocode
   (push 'company-go company-backends))
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
@@ -312,6 +315,8 @@
 (projectile-global-mode)
 (setq projectile-enable-caching t)
 (define-key projectile-mode-map  (kbd "C-c p f") 'projectile-find-file)
+(define-key projectile-mode-map  (kbd "C-c p p") 'projectile-switch-project)
+
 ;; 默认它的find file是用外部的svn git命令来查找，但是如果有submodule时，所导致不多个project，而不是
 ;; 一个。如果设置native时，会直接遍历目录，所以会慢很多，基本上不能接受。所以还是用svn，git来查找，只是
 ;; 查找时，用c-c p F来，这样就是从已知的project中找查
@@ -438,7 +443,7 @@
     (helm-mode 0)
     (autopair-mode 0)
     )
-  (when (> (buffer-size) (* 1024 1024))
+  (when (> (buffer-size) (* 1024 100))
     (fundamental-mode))
   )
 

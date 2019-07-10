@@ -140,6 +140,7 @@
 ;; ///////////////programe setting ///////////////
 
 (require 'init-jce)
+
 (add-hook 'after-init-hook 'global-company-mode)
 ;; any-company mode 默认是M-n M-p用于选择，但是习惯
 (with-eval-after-load 'company
@@ -230,8 +231,7 @@
   ; Godef jump key binding
   (local-set-key (kbd "M-.") 'godef-jump)
   (local-set-key (kbd "M-,") 'pop-tag-mark)
-  ;; company-go使用gocode
-  (push 'company-go company-backends))
+  )
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
 

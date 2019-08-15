@@ -2,12 +2,12 @@
 ;; 国内的镜像
 ;;(add-to-list 'package-archives
 ;;            '("melpa" . "https://melpa.org/packages/"))
- (setq package-archives '(
- 			 ("gnu"   . "http://elpa.emacs-china.org/gnu/")
- 			 ("melpa" . "http://elpa.emacs-china.org/melpa/")))
-(package-initialize)
 
-;(setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+(setq package-archives '(
+ 			 ("gnu"   . "http://mirrors.cloud.tencent.com/elpa/gnu/")
+ 			 ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
+
+(package-initialize)
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
@@ -69,7 +69,12 @@
 ;;显示列
 (column-number-mode 1)
 ;;在终端环境下，没有scroll-bar，所以设置会出错
-(if (display-graphic-p) (scroll-bar-mode 0))
+(if (display-graphic-p)
+    (progn
+      (scroll-bar-mode 0)
+      (tool-bar-mode 0)
+      )
+  )
 
 (tool-bar-mode 0)
 ;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏

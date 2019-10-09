@@ -2,12 +2,13 @@
 ;; 国内的镜像
 ;;(add-to-list 'package-archives
 ;;            '("melpa" . "https://melpa.org/packages/"))
-
-(setq package-archives '(
+ (setq package-archives '(
  			 ("gnu"   . "http://mirrors.cloud.tencent.com/elpa/gnu/")
  			 ("melpa" . "http://mirrors.cloud.tencent.com/elpa/melpa/")))
-
 (package-initialize)
+
+;; (setq url-proxy-services '(("http" . "127.0.0.1:12759")))
+;; (setq url-proxy-services '(("https" . "127.0.0.1:12759")))
 
 (add-to-list 'load-path "~/.emacs.d/lisp")  ;; 自定义的扩展
 
@@ -15,7 +16,7 @@
 ;; ////////////////common setting/////////////////
 ;; common lisp extensions一些额外的函数和宏
 (require 'cl)
-(eval-when-compile (require 'cl))
+;; (eval-when-compile (require 'cl))
 
 ;; windows 设置
 (when (eq system-type 'windows-nt)
@@ -38,7 +39,7 @@
   ;; 由于ls与linux中的不同，有些插件可能会报错
   (require 'ls-lisp)
   (setq ls-lisp-use-insert-directory-program nil)
-  (set-frame-font "Menlo-12")
+;;  (set-frame-font "Menlo-12")
 
   (setq default-frame-alist
       `((top . 0)
@@ -46,8 +47,8 @@
         (width . 100)  ;; 单位frame-char-width
         (height . 40)  ;; 单位frame-char-height
         ))
-  ;; (message "height:%d" (x-display-pixel-height))
-  ;; (message "width:%d" (x-display-pixel-width))
+  (message "height:%d" (x-display-pixel-height))
+  (message "width:%d" (x-display-pixel-width))
   )
 
 ;; ssh连接linux时，删除键重新映射
@@ -76,7 +77,7 @@
       )
   )
 
-(tool-bar-mode 0)
+
 ;;全屏，在使用railwaycat的emacs编译版本时，最大化按钮不是全屏
 (global-set-key  [(M return)] 'toggle-frame-fullscreen)
 
@@ -120,6 +121,7 @@
     urlenc
     reveal-in-osx-finder
     helm-gtags
+    helm-ag
     ggtags
     ag
     quickrun
@@ -153,18 +155,30 @@
   (define-key company-active-map (kbd "M-p") nil)
   (define-key company-active-map (kbd "C-n") #'company-select-next)
   (define-key company-active-map (kbd "C-p") #'company-select-previous)
-  (setq company-idle-delay 0)
 
   ;; company-yasnippet会造成在以.开始的补全中，出现很多无用的运算符号
-  (add-to-list
-   'company-backends '(company-gtags))
+  (setq company-backends
+        '((company-files
+           company-keywords
+           company-capf
+           company-yasnippet
+           company-gtags
+           company-lsp
+           company-abbrev
+           company-dabbrev
+           )
+          (company-abbrev company-dabbrev)))
+
+  ;; (add-to-list
+  ;;  'company-backends '(company-gtags company-dabbrev))
   (setq company-idle-delay 0.15)
   
   ;; 由于开启semantic-mode后,company-semantic 代替company-clang，它的优先级更高
   (setq company-backends (delete 'company-semantic company-backends))
 
-  (push 'company-lsp company-backends)
-  
+  ;; (push 'company-lsp company-backends)
+  ;; (push 'company-dabbrev company-backends)
+  ;; (push 'company-gtags company-backends)
   )
 
 (require 'yasnippet)
@@ -218,7 +232,7 @@
 	    (setq flycheck-cppcheck-checks (quote ("style" "all")))
 	    ))
 
-;; (add-hook 'go-mode-hook 'flycheck-mode)
+(add-hook 'go-mode-hook 'flycheck-mode)
 
 
 ;; firestarter，用于设置每次保存时执行的命令
@@ -235,6 +249,13 @@
   (local-set-key (kbd "M-.") 'godef-jump)
   (local-set-key (kbd "M-,") 'pop-tag-mark)
   (setq lsp-prefer-flymake nil)
+  (setq lsp-ui-peek-enable t)
+  (setq lsp-ui-doc-enable nil)
+  (setq lsp-ui-imenu-enable t)
+  (setq lsp-ui-flycheck-enable t)
+  (setq lsp-ui-sideline-enable nil)
+  (setq lsp-ui-sideline-ignore-duplicate t)
+  
   )
 (add-hook 'go-mode-hook 'my-go-mode-hook)
 
@@ -451,11 +472,12 @@
     (fundamental-mode))
   )
 
-(add-hook 'find-file-hook 'large-file-check-hook)
+;;(add-hook 'find-file-hook 'large-file-check-hook)
 
 ;; markdown
 (setq markdown-command
       "/usr/local/bin/pandoc -c ~/.emacs.d/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
 
 ;; //////////// Other ///////////////
+
 

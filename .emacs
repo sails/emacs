@@ -429,9 +429,14 @@
 ;;(setq gdb-many-windows t)
 
 ;; 编译远程文件
-(setq tramp-default-method "ssh")
-(setq tramp-default-user "sails")
-
+;; (setq tramp-default-method "ssh")
+;; (setq tramp-default-user "sails")
+;; (require 'tramp)
+(with-eval-after-load 'tramp
+  (tramp-set-completion-function "ssh"
+                                 '((tramp-parse-sconfig "/etc/ssh_config")
+                                   (tramp-parse-sconfig "~/.ssh/config")))
+  )
 
 ;; copy buffer path
 (defun copy-file-name(choice)
@@ -479,5 +484,4 @@
       "/usr/local/bin/pandoc -c ~/.emacs.d/pandoc_css/github-pandoc.css  --from markdown_github-ascii_identifiers -t html5 --toc --number-sections --mathjax --highlight-style pygments --standalone")
 
 ;; //////////// Other ///////////////
-
 

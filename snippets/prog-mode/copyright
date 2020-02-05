@@ -1,7 +1,6 @@
-# -*- mode: snippet; require-final-newline: nil -*-
+# -*- mode: snippet -*-
 # name: copyright
 # key: copyright
-# binding: direct-keybinding
 # --
 /****************************************************************
  *@file		    `(file-name-nondirectory buffer-file-name)`

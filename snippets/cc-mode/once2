@@ -1,7 +1,7 @@
-# name : #pragma once
+# -*- mode: snippet -*-
+# name: pragma once
 # key: once
 # --
-
 #pragma once
 
 $0

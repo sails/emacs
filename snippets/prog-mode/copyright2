@@ -1,7 +1,6 @@
-# -*- mode: snippet; require-final-newline: nil -*-
+# -*- mode: snippet -*-
 # name: copyright2
 # key: copyright2
-# binding: direct-keybinding
 # --
 // Copyright (C) `(format-time-string "%Y")` sails Authors.
 // All rights reserved.
